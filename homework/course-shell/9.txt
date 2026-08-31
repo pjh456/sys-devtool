@@ -1,0 +1,6 @@
+chmod 前：bash: ./8.sh: 权限不够
+chmod 后可以正确执行
+
+chmod 前：.rw-r--r-- 176 pjh123 31 8月  11:43  8.sh
+chmod 后：.rwxr-xr-x 176 pjh123 31 8月  11:43  8.sh
+必须添加了可执行权限才能执行脚本
