@@ -1,0 +1,21 @@
+原命令：missing:~$ ssh myserver 'journalctl -u sshd -b-1 | grep "Disconnected from"' \
+  | sed -E 's/.*Disconnected from .* user (.*) [^ ]+ port.*/\1/' \
+  | sort | uniq -c \
+  | sort -nk1,1 | tail -n10 \
+  | awk '{print $2}' | paste -sd,
+postgres,mysql,oracle,dell,ubuntu,inspur,test,admin,user,root
+
+1.1. ssh myserver '...' 用 ssh 连接到名为 myserver 的机器，并执行引号里的指令；
+1.2. journalctl -u sshd -b-1 读取 systemd 中 sshd 服务的记录，-b 表示启动，-1 表示最后一次，连起来就是上次启动以来的日志；
+1.3. grep "Disconnected from" 从 ssh 的日志里筛选出含 "Disconnected from" 的行；
+2.1. sed -E 's/.../\1/' 从筛选出来的日志里做替换，\1 匹配前面正则表达式中第一个 () 捕获的具体内容；
+2.2. .*Disconnected from .* user 先匹配前面的文本；
+2.3. (.*) 与 \1 对应是被捕获的 user 的具体内容；
+2.4 [^ ]+ port.* 匹配 user 后面的空格等无关内容，只留单独的用户名；
+3. sort | uniq -c 对用户名排序去重后统计出现次数
+4. sort -nk1,1 中 -n 指定按数值排序，-k 指定排序键，1,1 指定字段的起始，只按照用户名出现次数排序从小到大排序；
+5. tail -n10 只保留排序结果最后的 10 行，保留了出现次数最多的 10 个出现次数和用户名；
+6. awk '{print $2}' 去掉了出现次数，只输出用户名；
+7. paste -sd, 中 -s 将所有行合并为一行，-d, 指定了分隔符为逗号 ','
+
+最后输出的，就是从上次启动以来用 ssh 断联次数最多的 10 个用户。
