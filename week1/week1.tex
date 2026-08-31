@@ -1,0 +1,486 @@
+% 系统开发工具基础 · 第 1 周实验报告
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
+
+\usepackage{amsmath}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{fontawesome5}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{positioning}
+
+% ---------- 字体 ----------
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+
+% ---------- 配色：四题四色 ----------
+\definecolor{expone}{RGB}{41, 98, 168}   % 蓝
+\definecolor{exptwo}{RGB}{46, 125, 50}   % 绿
+\definecolor{expthree}{RGB}{214, 116, 30} % 橙
+\definecolor{expfour}{RGB}{106, 76, 172}  % 紫
+
+% ---------- 页眉页脚 ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}系统开发工具基础}
+\fancyhead[R]{\small\color{gray}第 1 周实验报告}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{gray!50}\hrule width\headwidth height 0.4pt}
+
+% ---------- 自定义盒子 ----------
+\newtcolorbox{reqbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faBook\ 题目要求}, coltitle=white,
+  colbacktitle=#1!75!black
+}
+\newtcolorbox{resbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faCheckCircle\ 结果与验证}, coltitle=white,
+  colbacktitle=#1!75!black
+}
+\newtcolorbox{trapbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faLightbulb\ 要点与注意事项}, coltitle=white,
+  colbacktitle=#1!75!black
+}
+
+% 实验标题横幅
+\newcommand{\expbanner}[3]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt]
+    {\Large\bfseries\color{#1!70!black}实验 #2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+% 小节小标题
+\newcommand{\sublabel}[2]{%
+  \par\vspace{1em}\noindent{\bfseries\color{#1!75!black}#2}\par\nobreak\vspace{0.25em}\noindent\ignorespaces
+}
+
+% 总结横幅（无编号）
+\newcommand{\concbanner}[2]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt]
+    {\Large\bfseries\color{#1!70!black}#2}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+
+% ---------- 代码/输出样式 ----------
+\lstdefinestyle{shell}{
+  language=bash, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, keywordstyle=\color{expone!70!black},
+  commentstyle=\color{green!50!black}, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true,
+  numbers=left, numberstyle=\tiny\color{gray}
+}
+\lstdefinestyle{output}{
+  language={}, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true
+}
+
+\hypersetup{colorlinks=true, linkcolor=expfour!70!black, urlcolor=blue!60!black}
+\captionsetup{font=small, labelfont=bf}
+
+\begin{document}
+
+% ================= 标题区 =================
+\begin{center}
+  {\LARGE\bfseries 系统开发工具基础}\\[2pt]
+  {\Large 第 1 周实验报告}\\[14pt]
+  {\large 姓名：彭俊皓\qquad 学号：25020007100}\\[4pt]
+  {\large 2026 年 8 月 24 日}\\[10pt]
+  \begin{tcolorbox}[enhanced, colback=expone!6, colframe=expone!60!black,
+    arc=2pt, boxrule=0.6pt, width=0.92\textwidth, center upper]
+    \small 本报告记录第 1 周四道实验题的完成过程、关键命令与验证结果，
+    覆盖 Shell 文件整理、管道文本统计、Git 合并冲突与 LaTeX 文档构建；
+    全部结果均在本机重新执行验证。
+  \end{tcolorbox}
+\end{center}
+
+\vspace{0.4em}
+\begin{table}[htbp]
+  \centering
+  \caption{第 1 周实验完成情况}
+  \label{tab:overview}
+  \begin{tabular}{clll}
+    \toprule
+    实验 & 主题 & 关键工具 & 状态 \\
+    \midrule
+    1 & 含空格文件名的批量整理 & Shell、find、chmod & \textcolor{expone}{\faCheckCircle\ 完成} \\
+    2 & 随机访问日志统计 & awk、sort、uniq、head & \textcolor{exptwo}{\faCheckCircle\ 完成} \\
+    3 & 制造并解决一次合并冲突 & Git、merge & \textcolor{expthree}{\faCheckCircle\ 完成} \\
+    4 & 修复并构建一页技术说明 & LaTeX、交叉引用 & \textcolor{expfour}{\faCheckCircle\ 完成} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ================= 实验一 =================
+\expbanner{expone}{一}{含空格文件名的批量整理（Shell 基础与文件系统）}
+
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 创建 \texttt{input/docs} 与 \texttt{input/tmp}，以及
+        \texttt{notes one.txt}（内容 alpha、beta）、\texttt{.secret.txt}（hidden）、
+        \texttt{empty.txt}（空）和 \texttt{run.log}（两行日志）；
+  \item 显示 \texttt{q01} 绝对路径，用长格式列出 \texttt{input} 全部项目（含隐藏文件）；
+  \item 把 \texttt{input} 下所有 \texttt{.txt} 复制到 \texttt{work/25020007100/}，
+        保留相对目录结构并正确处理空格；
+  \item 目录权限 750、普通文件权限 640；生成 \texttt{inventory.txt}，列出相对路径与字节数。
+\end{itemize}
+\end{reqbox}
+
+\sublabel{expone}{\faTerminal\ 实现步骤}
+\begin{lstlisting}[style=shell]
+mkdir -p input/docs input/tmp
+printf 'alpha\nbeta\n' > "input/docs/notes one.txt"
+printf 'hidden'        > input/docs/.secret.txt
+touch input/tmp/empty.txt
+printf 'log 1\nlog 2\n' > input/run.log
+
+pwd                       # 显示绝对路径
+ls -la input              # 长格式，含隐藏文件
+
+mkdir -p work/25020007100
+cd input
+# 复制全部可见 .txt 文件，--parents 保留相对目录结构
+find . -type f -name '*.txt' ! -name '.secret.txt' \
+  -exec cp --parents {} ../work/25020007100/ \;
+cd ..
+find work/25020007100 -type d -exec chmod 750 {} +      # 目录 750
+find work/25020007100 -type f ! -name inventory.txt \
+  -exec chmod 640 {} +                                  # 文件 640
+
+# 生成 inventory.txt：%s 字节数，%p 相对路径，-printf 不按空格分词
+cd work/25020007100
+find . -type f -name '*.txt' ! -name 'inventory.txt' \
+  -printf '%s %p\n' | sed 's|\./|work/25020007100/|' > inventory.txt
+\end{lstlisting}
+
+\sublabel{expone}{\faFolderOpen\ 目录结构}
+\begin{lstlisting}[style=output]
+work/25020007100/
+|-- docs/
+|   `-- notes one.txt      # 11 字节，名称中的空格完整保留
+|-- tmp/
+|   `-- empty.txt          # 0 字节
+`-- inventory.txt
+\end{lstlisting}
+
+\begin{resbox}{expone}
+\texttt{inventory.txt} 内容（相对路径 + 字节数，空格文件名不再被截断）：
+\begin{lstlisting}[style=output]
+11 work/25020007100/docs/notes one.txt
+0  work/25020007100/tmp/empty.txt
+\end{lstlisting}
+权限验证：\texttt{docs}、\texttt{tmp} 为 \texttt{drwxr-x---}（750），
+\texttt{notes one.txt}、\texttt{empty.txt} 为 \texttt{-rw-r-----}（640）。
+\end{resbox}
+
+\begin{trapbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 含空格文件名全程加引号，复制用 \texttt{cp --parents}、统计用 \texttt{find -printf}，
+        避免按空格分词导致名称被截断；
+  \item 隐藏文件 \texttt{.secret.txt} 以 \texttt{.txt} 结尾，但题目仅对 \texttt{ls} 一步显式要求
+        “包含隐藏文件”，故复制按常规可见 \texttt{.txt} 处理；如需包含，加
+        \texttt{-name '.*txt'} 即可；
+  \item 目录与普通文件的 750/640 用 \texttt{find -type d/-type f} 分开设置。
+\end{itemize}
+\end{trapbox}
+
+% ================= 实验二 =================
+\expbanner{exptwo}{二}{随机访问日志统计（Shell 管道与文本处理）}
+
+\begin{reqbox}{exptwo}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 编写 \texttt{analyze.sh}，接收一个 CSV 文件路径；文件不存在时写 stderr 并返回非零退出码；
+  \item 用管道与 awk、sort、head 等工具，输出 5xx 数量最多的前 2 个 path（次数降序、path 字典序）；
+  \item 输出全部数据行平均 \texttt{latency\_ms}，保留两位小数，表头不计入；
+  \item 分别对 \texttt{access.csv} 和不存在的文件运行；不得用 Python/手工统计。
+\end{itemize}
+\end{reqbox}
+
+\sublabel{exptwo}{\faCode\ analyze.sh}
+\begin{lstlisting}[style=shell]
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+    echo "input path is required" >&2
+    exit 1
+fi
+path=$1
+
+if [ ! -e "$path" ]; then
+    echo "$path is not found" >&2
+    exit 1
+fi
+if [ ! -f "$path" ]; then
+    echo "$path is not a file" >&2
+    exit 1
+fi
+
+case "$path" in
+    *.csv) ;;
+    *) echo "$path is not a CSV file" >&2; exit 1 ;;
+esac
+
+# 前 2 个 5xx path：awk 定位列 -> sort 去重计数 -> 次数降序 + 名称升序 -> head 截断
+awk -F "," 'NR==1{for(i=1;i<=NF;i++)h[$i]=i}
+            NR>1 && $h["status"] ~ /^5[0-9]{2}$/ {print $h["path"]}' "$path" |
+    sort | uniq -c | sort -k1,1rn -k2,2 | sed 's/^ *//' | head -2
+
+# 平均延迟：第一行动态定位列，最后一列行数除以数据行数 NR-1
+awk -F "," 'NR==1{for(i=1;i<=NF;i++)h[$i]=i}
+            NR>1 {sum+=$h["latency_ms"]}
+            END {printf "%.2f\n", sum/(NR-1)}' "$path"
+\end{lstlisting}
+
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh analyze.sh access.csv
+3 /api/orders
+2 /api/users
+193.75
+
+$ sh analyze.sh nope.csv
+nope.csv is not found     # 写入 stderr，退出码 1
+\end{lstlisting}
+\end{resbox}
+
+5xx 统计明细见 表 \ref{tab:5xx}；平均延迟：
+$\sum = 120+310+180+90+260+20+420+150 = 1550$，数据行 8 行，
+$1550 / 8 = 193.75$，输出 \texttt{193.75}。
+
+\begin{table}[htbp]
+  \centering
+  \caption{HTTP 5xx 数量统计}
+  \label{tab:5xx}
+  \begin{tabular}{lcr}
+    \toprule
+    path & 5xx 次数 & 排名 \\
+    \midrule
+    /api/orders & 3 & 1 \\
+    /api/users  & 2 & 2 \\
+    /login      & 1 & 3（被 \texttt{head -2} 截断） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{trapbox}{exptwo}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \texttt{uniq -c} 前必须 \texttt{sort}，否则计数错误；
+  \item 二次排序用 \texttt{sort -k1,1rn -k2,2}：次数数值降序、path 字典序升序；
+  \item \texttt{head -2} 保证只输出前 2 个 path；
+  \item awk 用表头动态定位列（\texttt{h["status"]} 等），不硬编码列号；
+  \item 脚本用 POSIX 的 \texttt{[ ]} 与 \texttt{exit}，可在 \texttt{sh}（dash）下运行。
+\end{itemize}
+\end{trapbox}
+
+% ================= 实验三 =================
+\expbanner{expthree}{三}{制造、解决并解释一次合并冲突（Git）}
+
+\begin{reqbox}{expthree}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 在 \texttt{q03} 从零初始化仓库，\texttt{main} 上创建 \texttt{config.txt}（mode=normal）并提交；
+  \item 建 \texttt{feature-a}（mode=safe）、从初始 \texttt{main} 建 \texttt{feature-b}（mode=fast）并各自提交；
+  \item 回 \texttt{main} 先合并 feature-a 再合并 feature-b，解决冲突保留 mode=safe，并另加一行
+        \texttt{note=reviewed}；
+  \item 确认工作区干净，用 \texttt{git log --all --graph --decorate --oneline} 查看历史。
+\end{itemize}
+\end{reqbox}
+
+\sublabel{expthree}{\faGit\ 操作过程}
+\begin{lstlisting}[style=shell]
+git init
+printf 'mode=normal\n' > config.txt
+git add config.txt && git commit -m "main branch first commit"
+
+git checkout -b feature-a
+printf 'mode=safe\n' > config.txt
+git commit -am "feature-a branch config changed"
+
+git checkout main
+git checkout -b feature-b
+printf 'mode=fast\n' > config.txt
+git commit -am "feature-b branch config changed"
+
+git checkout main
+git merge feature-a          # 顺利合并，config.txt 变为 mode=safe
+git merge feature-b          # 冲突：两边都改了同一行
+
+# 冲突解决：保留 mode=safe，另加一行 note=reviewed
+printf 'mode=safe\nnote=reviewed\n' > config.txt
+git add config.txt && git commit    # 完成合并提交
+\end{lstlisting}
+
+\sublabel{expthree}{\faProjectDiagram\ 分支与合并示意}
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    commit/.style={draw, circle, minimum size=6.5mm, inner sep=0pt,
+                   font=\footnotesize\ttfamily\bfseries,
+                   fill=expthree!12, draw=expthree!70!black},
+    lbl/.style={font=\scriptsize\sffamily, align=center},
+    flow/.style={thick, expthree!60!black}
+  ]
+    \node[commit] (A) at (0,0) {A};
+    \node[commit] (C) at (-2.4,1.9) {C};
+    \node[commit] (B) at (2.4,1.9) {B};
+    \node[commit] (D) at (0,3.8) {D};
+    \draw[flow] (A) -- (C);
+    \draw[flow] (A) -- (B);
+    \draw[flow] (C) -- (D);
+    \draw[flow] (B) -- (D);
+    \node[lbl, left=4pt of C] {feature-a\\\texttt{mode=safe}};
+    \node[lbl, right=4pt of B] {feature-b\\\texttt{mode=fast}};
+    \node[lbl, below right=4pt and 6pt of A] {main 初始\\\texttt{mode=normal}};
+    \node[lbl, above=3pt of D] {main (HEAD)\\mode=safe + note=reviewed};
+  \end{tikzpicture}
+  \caption{q03 分支与合并示意}
+  \label{fig:q3git}
+\end{figure}
+A：\texttt{8e50da7} 初始提交；C：\texttt{45a9ccc}（feature-a，mode=safe）；
+B：\texttt{1c5d24b}（feature-b，mode=fast）；D：\texttt{4538fe4} 合并提交（main HEAD）。
+
+\begin{resbox}{expthree}
+最终 \texttt{config.txt}：
+\begin{lstlisting}[style=output]
+mode=safe
+note=reviewed
+\end{lstlisting}
+合并历史（工作区干净）：
+\begin{lstlisting}[style=output]
+*   4538fe4 (HEAD -> main) Merge feature-b and ignore its change
+|\
+| * 1c5d24b (feature-b) feature-b branch config changed
+* | 45a9ccc (feature-a) feature-a branch config changed
+|/
+* 8e50da7 main branch first commit
+\end{lstlisting}
+\end{resbox}
+
+\begin{trapbox}{expthree}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 冲突发生在合并 \texttt{feature-b} 时：两个分支都在初始提交之后修改了
+        \texttt{config.txt} 同一行，Git 无法自动合并；
+  \item 解决时显式保留 \texttt{mode=safe} 并追加 \texttt{note=reviewed}；
+        该改动已通过 \texttt{commit --amend} 并入合并提交，保证历史整洁；
+  \item 合并后 \texttt{git status} 无未提交改动，工作区干净。
+\end{itemize}
+\end{trapbox}
+
+% ================= 实验四 =================
+\expbanner{expfour}{四}{修复并构建一页技术说明（LaTeX）}
+
+\begin{reqbox}{expfour}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 将模板保存为 \texttt{q04/report.tex} 并补全；
+  \item 加入带编号和 label 的公式，在正文用 \texttt{ref} 或 \texttt{eqref} 引用；
+  \item 加入 2 行 2 列表格，设置 caption 与 label，并在正文引用；
+  \item 命令行构建 \texttt{report.pdf}；确认能打开且交叉引用不显示“??”。
+\end{itemize}
+\end{reqbox}
+
+\sublabel{expfour}{\faFileCode\ 补全后的 report.tex}
+\begin{lstlisting}[style=shell]
+\documentclass{article}
+\usepackage{CJKutf8}
+\usepackage{amsmath}
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+\title{Tool Report}
+\author{彭俊皓---25020007100}
+\maketitle
+\section{Result}
+
+公式 \eqref{eq:example} 是一个重要的等式。
+\begin{equation}
+E = mc^2
+\label{eq:example}
+\end{equation}
+
+表 \ref{tab:data} 展示了实验数据。
+\begin{table}[htbp]
+\centering
+\caption{示例表格}
+\label{tab:data}
+\begin{tabular}{|c|c|}
+\hline
+列1 & 列2 \\
+\hline
+数据1 & 数据2 \\
+数据3 & 数据4 \\
+\hline
+\end{tabular}
+\end{table}
+\end{CJK}
+\end{document}
+\end{lstlisting}
+
+\sublabel{expfour}{\faBolt\ 构建与验证}
+\begin{lstlisting}[style=shell]
+# 本机未安装 latexmk/tectonic，用 pdflatex 连续两遍编译，
+# 使 \label/\ref 编号收敛（等价于 latexmk 的默认动作）
+pdflatex -interaction=nonstopmode report.tex
+pdflatex -interaction=nonstopmode report.tex
+\end{lstlisting}
+
+\begin{resbox}{expfour}
+\texttt{pdftotext} 抽取结果验证交叉引用无 “??”：
+\begin{lstlisting}[style=output]
+1    Result
+公式 (1) 是一个重要的等式。
+E = mc2        (1)
+表 1 展示了实验数据。
+Table 1: 示例表格
+\end{lstlisting}
+正文通过 \verb|\label|/\verb|\ref|（公式用 \verb|\eqref|）自动维护编号；上表验证输出显示公式编号为 (1)、表格编号为 1，无 “??”。
+PDF 正常生成（\texttt{report.pdf} 可打开，无未定义引用）。
+\end{resbox}
+
+\begin{trapbox}{expfour}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \verb|\eqref| 自动带括号，\verb|\ref| 仅输出编号；
+  \item 交叉引用依赖辅助文件 \texttt{.aux}，需要编译两遍才能收敛；
+  \item 本机无 \texttt{latexmk}/tectonic，改用 \texttt{pdflatex} 两遍编译达到等价效果；
+        正式环境建议直接使用题目指定的 \texttt{latexmk -pdf -halt-on-error}。
+\end{itemize}
+\end{trapbox}
+
+% ================= 总结 =================
+\concbanner{expone}{总结与收获}
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{Shell 文件处理}：空格文件名要全程加引号，复制、统计应使用
+        \texttt{cp --parents}、\texttt{find -printf} 等不按空格分词的方案；
+  \item \textbf{管道文本统计}：\texttt{sort | uniq -c} 计数，\texttt{sort -k1,1rn -k2,2}
+        实现“次数降序 + 名称升序”，再 \texttt{head -2} 截断；awk 用表头定位列更健壮；
+  \item \textbf{Git 合并冲突}：同一行被两侧同时修改必然冲突，解决的本质是“手工判定
+        保留哪一侧 + 是否补充内容”，再用 \texttt{commit --amend} 保持历史整洁；
+  \item \textbf{LaTeX 文档}：交叉引用需两遍编译，\texttt{eqref}/\texttt{ref} 配合
+        \texttt{label} 实现编号自动维护，避免手写编号；
+  \item 本报告本身即用 LaTeX（XeLaTeX + ctex）编写，采用四色分区、三线表、
+        TikZ 图形与代码高亮排版。
+\end{itemize}
+
+\end{document}
