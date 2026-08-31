@@ -1,0 +1,198 @@
+% !TEX program = xelatex
+% 系统开发工具基础 · 实验报告模板
+% 用法：
+%   1. 复制到 weekN/ 下，重命名为 weekN.tex
+%   2. 修改下方「个人信息」一区的宏（周次、日期等）
+%   3. 按「实验一」示例结构逐题填写；每题 = expbanner + reqbox + 过程 + resbox + trapbox
+%   4. 编译两遍：xelatex weekN.tex && xelatex weekN.tex
+
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
+
+\usepackage{amsmath}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{fontawesome5}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{positioning}
+
+% ---------- 个人信息（只需改这一区） ----------
+\newcommand{\coursename}{系统开发工具基础}
+\newcommand{\reportweek}{2}
+\newcommand{\studentname}{彭俊皓}
+\newcommand{\studentid}{25020007100}
+\newcommand{\reportdate}{2026 年 X 月 X 日}
+
+% ---------- 字体 ----------
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+
+% ---------- 配色：四题四色（题数不足时其余颜色闲置） ----------
+\definecolor{expone}{RGB}{41, 98, 168}   % 蓝
+\definecolor{exptwo}{RGB}{46, 125, 50}   % 绿
+\definecolor{expthree}{RGB}{214, 116, 30} % 橙
+\definecolor{expfour}{RGB}{106, 76, 172}  % 紫
+
+% ---------- 页眉页脚 ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}\coursename}
+\fancyhead[R]{\small\color{gray}第 \reportweek 周实验报告}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{gray!50}\hrule width\headwidth height 0.4pt}
+
+% ---------- 自定义盒子 ----------
+\newtcolorbox{reqbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faBook\ 题目要求}, coltitle=white,
+  colbacktitle=#1!75!black
+}
+\newtcolorbox{resbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faCheckCircle\ 结果与验证}, coltitle=white,
+  colbacktitle=#1!75!black
+}
+\newtcolorbox{trapbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faLightbulb\ 要点与注意事项}, coltitle=white,
+  colbacktitle=#1!75!black
+}
+
+% 实验标题横幅
+\newcommand{\expbanner}[3]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt]
+    {\Large\bfseries\color{#1!70!black}实验 #2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+% 小节小标题
+\newcommand{\sublabel}[2]{%
+  \par\vspace{1em}\noindent{\bfseries\color{#1!75!black}#2}\par\nobreak\vspace{0.25em}\noindent\ignorespaces
+}
+
+% 总结横幅（无编号）
+\newcommand{\concbanner}[2]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt]
+    {\Large\bfseries\color{#1!70!black}#2}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+
+% ---------- 代码/输出样式 ----------
+\lstdefinestyle{shell}{
+  language=bash, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, keywordstyle=\color{expone!70!black},
+  commentstyle=\color{green!50!black}, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true,
+  numbers=left, numberstyle=\tiny\color{gray}
+}
+\lstdefinestyle{output}{
+  language={}, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true
+}
+
+\hypersetup{colorlinks=true, linkcolor=expfour!70!black, urlcolor=blue!60!black}
+\captionsetup{font=small, labelfont=bf}
+
+\begin{document}
+
+% ================= 标题区 =================
+\begin{center}
+  {\LARGE\bfseries \coursename}\\[2pt]
+  {\Large 第 \reportweek 周实验报告}\\[14pt]
+  {\large 姓名：\studentname\qquad 学号：\studentid}\\[4pt]
+  {\large \reportdate}\\[10pt]
+  \begin{tcolorbox}[enhanced, colback=expone!6, colframe=expone!60!black,
+    arc=2pt, boxrule=0.6pt, width=0.92\textwidth, center upper]
+    \small 本报告记录第 \reportweek 周各道实验题的完成过程、关键命令与验证结果；
+    全部结果均在本机重新执行验证。
+  \end{tcolorbox}
+\end{center}
+
+\vspace{0.4em}
+% 完成情况总览表：行数按实际题数增删
+\begin{table}[htbp]
+  \centering
+  \caption{第 \reportweek 周实验完成情况}
+  \label{tab:overview}
+  \begin{tabular}{clll}
+    \toprule
+    实验 & 主题 & 关键工具 & 状态 \\
+    \midrule
+    1 & （填写主题） & （填写工具） & \textcolor{expone}{\faCheckCircle\ 完成} \\
+    2 & （填写主题） & （填写工具） & \textcolor{exptwo}{\faCheckCircle\ 完成} \\
+    3 & （填写主题） & （填写工具） & \textcolor{expthree}{\faCheckCircle\ 完成} \\
+    4 & （填写主题） & （填写工具） & \textcolor{expfour}{\faCheckCircle\ 完成} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ================= 实验一（示例结构，照抄后替换内容） =================
+\expbanner{expone}{一}{（填写实验主题）}
+
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 题目要求第一条；
+  \item 题目要求第二条；
+  \item 题目要求第三条。
+\end{itemize}
+\end{reqbox}
+
+\sublabel{expone}{\faTerminal\ 实现步骤}
+\begin{lstlisting}[style=shell]
+# 关键命令
+ls -la
+\end{lstlisting}
+
+\begin{resbox}{expone}
+实际运行输出：
+\begin{lstlisting}[style=output]
+（粘贴终端输出）
+\end{lstlisting}
+对结果的验证说明。
+\end{resbox}
+
+\begin{trapbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 易错点 / 关键技巧一；
+  \item 易错点 / 关键技巧二。
+\end{itemize}
+\end{trapbox}
+
+% ================= 实验二（复制上一节整段，改颜色为 exptwo，依此类推） =================
+% \expbanner{exptwo}{二}{（填写实验主题）}
+% ...
+% \expbanner{expthree}{三}{（填写实验主题）}
+% \expbanner{expfour}{四}{（填写实验主题）}
+
+% ================= 总结 =================
+\concbanner{expone}{总结与收获}
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+  \item （按题归纳本周收获，每条一个要点）；
+  \item 补充说明（如方法对比、踩坑复盘）。
+\end{itemize}
+
+\end{document}
