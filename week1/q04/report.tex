@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage{CJKutf8}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\title{Tool Report}
+\author{彭俊皓—25020007100}
+\maketitle
+
+\section{Result}
+
+% 正文中引用公式，使用 \eqref 自动加括号
+公式 \eqref{eq:example} 是一个重要的等式。
+
+% 带编号的公式（equation 环境自动编号）
+\begin{equation}
+E = mc^2
+\label{eq:example}
+\end{equation}
+
+% 正文中引用表格，使用 \ref 或 \autoref（推荐）
+表 \ref{tab:data} 展示了实验数据。
+
+% 表格（带 caption 和 label）
+\begin{table}[htbp]
+\centering
+\caption{示例表格}
+\label{tab:data}
+\begin{tabular}{|c|c|}
+\hline
+列1 & 列2 \\
+\hline
+数据1 & 数据2 \\
+数据3 & 数据4 \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{CJK}
+\end{document}
