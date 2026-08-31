@@ -1,0 +1,687 @@
+% !TEX program = xelatex
+% 系统开发工具基础 · 第 1 周课后实验报告
+% 编译：xelatex homework1.tex（两遍）
+
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
+
+\usepackage{amsmath}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{fontawesome5}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{positioning}
+
+% ---------- 字体 ----------
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+
+% ---------- 配色 ----------
+\definecolor{expone}{RGB}{41, 98, 168}    % 蓝：课堂实验回顾
+\definecolor{exptwo}{RGB}{46, 125, 50}    % 绿：课后练习
+\definecolor{expthree}{RGB}{214, 116, 30} % 橙：备用
+\definecolor{expfour}{RGB}{106, 76, 172}  % 紫：备用
+
+% ---------- 页眉页脚 ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}系统开发工具基础}
+\fancyhead[R]{\small\color{gray}第 1 周课后实验报告}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{gray!50}\hrule width\headwidth height 0.4pt}
+
+% ---------- 自定义盒子 ----------
+\newtcolorbox{reqbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faBook\ 题目要求}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{resbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faCheckCircle\ 结果与验证}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{trapbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faLightbulb\ 要点与注意事项}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+
+% 部分横幅（一 / 二 / 总结）
+\newcommand{\partbanner}[3]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+    before skip=1.6em]
+    {\Large\bfseries\color{#1!70!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+% 课后小题横幅（第 N 题）
+\newcommand{\hwbanner}[3]{%
+  \par\vspace{1.1em}
+  \begin{tcolorbox}[enhanced, colback=#1!8, colframe=#1!75!black,
+    boxrule=0.8pt, arc=2pt, left=7pt, right=7pt, top=4pt, bottom=4pt,
+    before skip=1.1em]
+    {\bfseries\color{#1!75!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.1em}\noindent\ignorespaces
+}
+% 小节小标题
+\newcommand{\sublabel}[2]{%
+  \par\vspace{0.8em}\noindent{\bfseries\color{#1!75!black}#2}\par\nobreak\vspace{0.25em}\noindent\ignorespaces
+}
+
+% ---------- 代码/输出样式 ----------
+\lstdefinestyle{shell}{
+  language=bash, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, keywordstyle=\color{expone!70!black},
+  commentstyle=\color{green!50!black}, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true,
+  numbers=left, numberstyle=\tiny\color{gray}
+}
+\lstdefinestyle{output}{
+  language={}, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true
+}
+
+\hypersetup{colorlinks=true, linkcolor=expfour!70!black, urlcolor=blue!60!black}
+\captionsetup{font=small, labelfont=bf}
+
+\begin{document}
+
+% ================= 标题区 =================
+\begin{center}
+  {\LARGE\bfseries 系统开发工具基础}\\[2pt]
+  {\Large 第 1 周课后实验报告}\\[14pt]
+  {\large 姓名：彭俊皓\qquad 学号：25020007100}\\[4pt]
+  {\large 2026 年 8 月 31 日}\\[4pt]
+  {\large 仓库：\url{https://github.com/pjh456/sys-devtool/}}\\[10pt]
+  \begin{tcolorbox}[enhanced, colback=expone!6, colframe=expone!60!black,
+    arc=2pt, boxrule=0.6pt, width=0.92\textwidth, center upper]
+    \small 本报告覆盖第 1 周课堂四道实验（\texttt{week1/q01}--\texttt{q04}）的
+    操作过程与结果，以及 missing-semester《Shell 入门》课后练习第 1--12 题
+    （脚本与输出均在 \texttt{homework/course-shell/} 下可复现）；
+    全部结果均在本机重新执行验证。
+  \end{tcolorbox}
+\end{center}
+
+\vspace{0.4em}
+\begin{table}[htbp]
+  \centering
+  \caption{第 1 周课后实验完成情况}
+  \label{tab:overview}
+  \begin{tabular}{llll}
+    \toprule
+    部分 & 内容 & 关键工具 & 状态 \\
+    \midrule
+    一 & 课堂实验回顾（q01--q04） & Shell、awk、Git、LaTeX & \textcolor{expone}{\faCheckCircle\ 完成} \\
+    二 & Shell 入门课后练习（第 1--12 题） & bash、find、chmod、管道 & \textcolor{exptwo}{\faCheckCircle\ 完成} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ================= 第一部分：课堂实验回顾 =================
+\partbanner{expone}{一}{课堂实验回顾（q01--q04）}
+
+\hwbanner{expone}{q01}{含空格文件名的批量整理}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 创建 \texttt{input/docs}、\texttt{input/tmp} 及含空格文件名 \texttt{notes one.txt} 等；
+  \item 把 \texttt{input} 下全部 \texttt{.txt} 复制到 \texttt{work/25020007100/}，保留相对目录结构；
+  \item 目录权限 750、文件权限 640，生成 \texttt{inventory.txt}（相对路径 + 字节数）。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faTerminal\ 关键命令}
+\begin{lstlisting}[style=shell]
+mkdir -p input/docs input/tmp
+printf 'alpha\nbeta\n' > "input/docs/notes one.txt"
+touch input/tmp/empty.txt
+find . -type f -name '*.txt' ! -name '.secret.txt' \
+  -exec cp --parents {} ../work/25020007100/ \;     # 复制，保留相对结构
+find work/25020007100 -type d -exec chmod 750 {} + # 目录 750
+find work/25020007100 -type f ! -name inventory.txt \
+  -exec chmod 640 {} +                              # 文件 640
+find . -type f -name '*.txt' ! -name 'inventory.txt' \
+  -printf '%s %p\n' | sed 's|\./|work/25020007100/|' > inventory.txt
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ cat work/25020007100/inventory.txt
+11 work/25020007100/docs/notes one.txt
+0  work/25020007100/tmp/empty.txt
+\end{lstlisting}
+空格文件名完整保留；\texttt{docs}、\texttt{tmp} 为 \texttt{drwxr-x---}（750），
+\texttt{notes one.txt}、\texttt{empty.txt} 为 \texttt{-rw-r-----}（640）。
+\end{resbox}
+\begin{trapbox}{expone}
+  含空格路径全程加引号；复制用 \texttt{cp --parents}、统计用 \texttt{find -printf}，
+  二者都不按空格分词，避免文件名被截断。
+\end{trapbox}
+
+\hwbanner{expone}{q02}{随机访问日志统计}
+\begin{reqbox}{expone}
+  编写 \texttt{analyze.sh}：输入不存在的文件时写 stderr 并返回非零退出码；
+  输出 5xx 数量最多的前 2 个 path（次数降序、path 字典序）；输出平均
+  \texttt{latency\_ms}（两位小数，表头不计入）；不得使用 Python。
+\end{reqbox}
+\sublabel{expone}{\faCode\ 关键管道}
+\begin{lstlisting}[style=shell]
+# 前 2 个 5xx path：awk 按表头定位列 -> sort|uniq -c 计数 -> 次数降序+名称升序 -> head -2
+awk -F "," 'NR==1{for(i=1;i<=NF;i++)h[$i]=i}
+            NR>1 && $h["status"] ~ /^5[0-9]{2}$/ {print $h["path"]}' "$path" |
+    sort | uniq -c | sort -k1,1rn -k2,2 | sed 's/^ *//' | head -2
+# 平均延迟：动态定位列，求和除以数据行数 NR-1
+awk -F "," 'NR==1{for(i=1;i<=NF;i++)h[$i]=i}
+            NR>1 {sum+=$h["latency_ms"]}
+            END {printf "%.2f\n", sum/(NR-1)}' "$path"
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ sh analyze.sh access.csv
+3 /api/orders
+2 /api/users
+193.75
+
+$ sh analyze.sh nope.csv
+nope.csv is not found      # 写入 stderr，退出码 1
+\end{lstlisting}
+平均延迟核算：$(120+310+180+90+260+20+420+150)/8 = 1550/8 = 193.75$。
+\end{resbox}
+\begin{trapbox}{expone}
+  \texttt{uniq -c} 前必须先 \texttt{sort}；次序要求用 \texttt{sort -k1,1rn -k2,2}
+  （次数数值降序 + path 字典序）实现；awk 按表头定位列而非硬编码列号，脚本更健壮。
+\end{trapbox}
+
+\hwbanner{expone}{q03}{制造、解决并解释一次合并冲突}
+\begin{reqbox}{expone}
+  在 \texttt{q03} 仓库从零初始化：\texttt{main} 上创建 \texttt{config.txt}（mode=normal）；
+  从初始 \texttt{main} 建 \texttt{feature-a}（mode=safe）、\texttt{feature-b}（mode=fast）；
+  回 \texttt{main} 先合 a 再合 b，解决冲突保留 mode=safe 并加一行 \texttt{note=reviewed}。
+\end{reqbox}
+\sublabel{expone}{\faGit\ 操作过程}
+\begin{lstlisting}[style=shell]
+git init
+printf 'mode=normal\n' > config.txt
+git add config.txt && git commit -m "main branch first commit"
+git checkout -b feature-a
+printf 'mode=safe\n' > config.txt
+git commit -am "feature-a branch config changed"
+git checkout main
+git checkout -b feature-b
+printf 'mode=fast\n' > config.txt
+git commit -am "feature-b branch config changed"
+git checkout main
+git merge feature-a          # 顺利合并 -> mode=safe
+git merge feature-b          # 冲突：两边都改了同一行
+printf 'mode=safe\nnote=reviewed\n' > config.txt
+git add config.txt && git commit
+\end{lstlisting}
+\begin{resbox}{expone}
+最终 \texttt{config.txt} 为 \texttt{mode=safe} + \texttt{note=reviewed}；
+\texttt{git log --all --graph --oneline} 呈菱形历史，合并提交 \texttt{4538fe4} 为 main HEAD，工作区干净。
+\begin{lstlisting}[style=output]
+*   4538fe4 (HEAD -> main) Merge feature-b and ignore its change
+|\
+| * 1c5d24b (feature-b) feature-b branch config changed
+* | 45a9ccc (feature-a) feature-a branch config changed
+|/
+* 8e50da7 main branch first commit
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{expone}
+  两分支在基线之后修改同一行必然冲突；解决的本质是手工判定保留哪一侧
+  （此处保留 safe 并补充 note 行），再完成合并提交。
+\end{trapbox}
+
+\hwbanner{expone}{q04}{修复并构建一页技术说明}
+\begin{reqbox}{expone}
+  补全 \texttt{q04/report.tex}：加入带编号与 label 的公式并用 \verb|\eqref| 引用；
+  加入 2$\times$2 表格（caption + label）并在正文引用；构建 \texttt{report.pdf}，
+  交叉引用不得出现 “??”。
+\end{reqbox}
+\sublabel{expone}{\faBolt\ 构建与验证}
+\begin{lstlisting}[style=shell]
+pdflatex -interaction=nonstopmode report.tex   # 本机无 latexmk，两遍编译使
+pdflatex -interaction=nonstopmode report.tex   # \label/\ref 编号收敛
+pdftotext report.pdf - | grep -c '??'          # 输出 0，无未定义引用
+\end{lstlisting}
+\begin{resbox}{expone}
+\texttt{pdftotext} 验证：正文显示“公式 (1) 是一个重要的等式”“表 1 展示了实验数据”，
+公式与表格编号均正确解析，无 “??”。
+\end{resbox}
+\begin{trapbox}{expone}
+  \verb|\eqref| 自动带括号、\verb|\ref| 仅出编号；交叉引用依赖 \texttt{.aux}，
+  需编译两遍收敛。
+\end{trapbox}
+
+% ================= 第二部分：课后练习 =================
+\partbanner{exptwo}{二}{课后练习：missing-semester《Shell 入门》第 1--12 题}
+
+\hwbanner{exptwo}{第 1 题}{确认当前 Shell 环境}
+\begin{reqbox}{exptwo}
+  课程要求使用类 Unix Shell（Bash/Zsh 等）。运行 \texttt{echo \$SHELL}，
+  输出类似 \texttt{/bin/bash} 或 \texttt{/usr/bin/zsh} 即满足要求。
+\end{reqbox}
+\begin{lstlisting}[style=shell]
+echo $SHELL
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 1.sh
+/usr/bin/bash
+\end{lstlisting}
+当前默认 Shell 为 bash，满足课程对 Shell 的要求，后续练习均在此环境完成。
+\end{resbox}
+
+\hwbanner{exptwo}{第 2 题}{\texttt{ls -l} 长格式与权限位}
+\begin{reqbox}{exptwo}
+  \texttt{ls} 的 \texttt{-l} 选项作用是什么？运行 \texttt{ls -l /} 并观察输出，
+  每一行最前面的 10 个字符分别代表什么？（提示：\texttt{man ls}）
+\end{reqbox}
+\sublabel{exptwo}{\faTerminal\ 操作（\texttt{2/ls.sh}、\texttt{2/manls.sh}）}
+\begin{lstlisting}[style=shell]
+ls -l /
+man ls
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ ls -l /
+总计 52
+lrwxrwxrwx   1 root root     7 2025年10月13日 bin -> usr/bin
+drwx------   5 root root  4096 1970年 1月 1日 boot
+drwxr-xr-x  20 root root  4480 8月31日 13:29 dev
+drwxr-xr-x 110 root root  4096 8月31日 13:30 etc
+……（共 50 余行）
+\end{lstlisting}
+\texttt{-l} 为长格式：按行列出每个文件的类型与权限、链接数、属主、属组、字节数、
+修改时间与名称。每行最前 10 个字符的含义：
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 第 1 个字符为文件类型：\texttt{d} 目录、\texttt{-} 普通文件、\texttt{l} 符号链接；
+  \item 后 9 个字符按 3 个一组，分别是属主、属组、其他人的读 \texttt{r}/写 \texttt{w}/执行 \texttt{x} 权限。
+\end{itemize}
+例如 \texttt{drwx------}：目录，仅属主可读写进入；\texttt{lrwxrwxrwx}：链接，任何人可读写。
+\end{resbox}
+
+\hwbanner{exptwo}{第 3 题}{glob（文件名展开）}
+\begin{reqbox}{exptwo}
+  \texttt{find} 命令中的 \texttt{"*.zip"} 是一个 glob。什么是 glob？
+  新建一个测试目录并创建一些文件，试试 \texttt{ls *.txt}、\texttt{ls file?.txt}、
+  \texttt{ls \{a,b,c\}.txt} 等模式。
+\end{reqbox}
+\sublabel{exptwo}{\faTerminal\ 操作（\texttt{3/} 目录）}
+新建目录 \texttt{homework/course-shell/3}，其中放入 \texttt{a.txt}、\texttt{b.txt}、
+\texttt{c.txt}、\texttt{data.csv/json/toml}、\texttt{dir1.txt}、\texttt{dir2.txt}、
+\texttt{file1--3.txt}，然后分别运行：
+\begin{lstlisting}[style=shell]
+# lsstar.sh
+ls *.txt
+# lsfile.sh
+ls file?.txt
+# lsscope.txt（命令行直接运行）
+ls {a,b,c}.txt
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ ls *.txt
+a.txt  b.txt  c.txt  dir1.txt  dir2.txt
+file1.txt  file2.txt  file3.txt  lsscope.txt
+
+$ ls file?.txt
+file1.txt  file2.txt  file3.txt
+
+$ ls {a,b,c}.txt
+a.txt  b.txt  c.txt
+\end{lstlisting}
+\textbf{glob（文件名展开）}是 shell 在调用命令\emph{之前}自行完成的模式匹配：
+shell 先用该模式匹配当前目录下的文件名，把匹配结果作为一个参数列表展开后再传给命令。
+三种模式的区别：
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \texttt{*} 匹配\emph{任意长度}（含空）的字符，故 \texttt{*.txt} 匹配所有以
+        \texttt{.txt} 结尾的文件；
+  \item \texttt{?} 恰好匹配\emph{一个}字符，故 \texttt{file?.txt} 只匹配
+        \texttt{file1--3.txt} 这类“file+一位+.txt”的名字；
+  \item \texttt{\{a,b,c\}.txt} 是大括号展开，等价于 \texttt{ls a.txt b.txt c.txt}，
+        与 \texttt{*}/\texttt{?} 的“匹配”不同，它是直接生成多个候选字符串。
+\end{itemize}
+若模式无匹配项，bash 默认原样传递该模式（可设 \texttt{nullglob} 使其展开为空）。
+\end{resbox}
+
+\hwbanner{exptwo}{第 4 题}{三种引号}
+\begin{reqbox}{exptwo}
+  \texttt{'单引号'}、\texttt{"双引号"} 和 \texttt{\$'ANSI 引号'} 有什么区别？
+  写一条命令，输出一个同时包含字面量 \texttt{\$}、\texttt{!} 和换行符的字符串。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{4.sh}）}
+\begin{lstlisting}[style=shell]
+echo "\$"'!'$'\n'
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 4.sh | od -c
+0000000   $   !  \n  \n
+0000004
+\end{lstlisting}
+输出即 \texttt{\$!} 加换行（末尾 \texttt{\textbackslash n} 由 \texttt{echo} 自带，
+\texttt{od -c} 验证字节内容无误）。该命令把三种引号各用了一段：
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \texttt{"\$"}：双引号内允许变量与命令展开，\texttt{\$} 加反斜杠即输出字面量 \texttt{\$}；
+  \item \texttt{'!'}：单引号内一切皆字面量，避免交互式 bash 把 \texttt{!} 当作历史扩展；
+  \item \texttt{\$'\textbackslash n'}：ANSI-C 引号，解释 \texttt{\textbackslash n} 转义得到真正的换行。
+\end{itemize}
+三者对比：单引号完全不展开；双引号展开 \texttt{\$var}、\texttt{\$(cmd)} 与
+\texttt{\textbackslash\$ \textbackslash\textbackslash \textbackslash` \textbackslash"} 等少数反斜杠序列；
+\texttt{\$'...'} 解释 C 风格转义（\texttt{\textbackslash n}、\texttt{\textbackslash t}、\texttt{\textbackslash xNN} 等）。
+\end{resbox}
+
+\hwbanner{exptwo}{第 5 题}{标准流重定向}
+\begin{reqbox}{exptwo}
+  Shell 有三条标准流：stdin(0)、stdout(1)、stderr(2)。运行 \texttt{ls /nonexistent /tmp}，
+  把 stdout 和 stderr 分别重定向到两个文件；再说明如何把两者都重定向到同一个文件。
+\end{reqbox}
+\sublabel{exptwo}{\faTerminal\ 操作（\texttt{5/rd2.sh}、\texttt{5/rd1.sh}）}
+\begin{lstlisting}[style=shell]
+# 分流：stdout 与 stderr 各进一个文件
+ls /nonexistent /tmp 1> stdout.log 2> stderr.log
+# 合并：先让 stdout 进 all.log，再让 stderr 跟随 stdout（2>&1 顺序不可颠倒）
+ls /nonexistent /tmp > all.log 2>&1
+\end{lstlisting}
+\begin{resbox}{exptwo}
+三个日志文件内容（\texttt{/tmp} 列表较长，节选首行）：
+\begin{lstlisting}[style=output]
+$ cat stderr.log
+"/nonexistent": No such file or directory (os error 2)
+
+$ head -3 stdout.log
+37f59b10-0c81-4765-a66a-fec19b4fb3c6.png
+148e3933-7014-4822-983a-6b0af7a4afb4.png
+fdf03fa1-4baa-4b2a-9806-8349bc305799.png
+
+$ head -2 all.log
+"/nonexistent": No such file or directory (os error 2)
+37f59b10-0c81-4765-a66a-fec19b4fb3c6.png
+\end{lstlisting}
+分流写法中 \texttt{1>} 与 \texttt{2>} 各自独立指向文件，两路互不干扰；
+合并写法 \texttt{> all.log 2>\&1} 中 \texttt{2>\&1} 必须写在 \texttt{>} 之后：
+先使 fd1 指向 \texttt{all.log}，再让 fd2“跟随”当前的 fd1，二者才指向同一文件；
+若写成 \texttt{2>\&1 > all.log}，stderr 会先指向终端，stdout 才改道，错误信息就丢不进文件了。
+\end{resbox}
+
+\hwbanner{exptwo}{第 6 题}{一行命令：仅在不存在时创建}
+\begin{reqbox}{exptwo}
+  \texttt{\$?} 保存上一条命令的退出状态（0 为成功）；\texttt{\&\&} 仅在前一条成功时执行后一条，
+  \texttt{||} 仅在前一条失败时执行后一条。写一行命令：仅当 \texttt{/tmp/mydir} 不存在时才创建它。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{6.sh}）}
+\begin{lstlisting}[style=shell]
+ls /tmp/mydir 2> /dev/null || mkdir -p /tmp/mydir
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 6.sh                       # 目录不存在：ls 失败(退出码 2) -> || 触发 mkdir
+$ ls -ld /tmp/mydir
+drwxr-xr-x 2 pjh123 pjh123 40 8月31日 14:40 /tmp/mydir
+$ sh 6.sh                       # 目录已存在：ls 成功，|| 短路，不再创建
+$ echo $?
+0
+\end{lstlisting}
+\texttt{ls} 对不存在的目录返回非零退出码，于是 \texttt{||} 右侧的
+\texttt{mkdir -p} 被执行；目录已存在时 \texttt{ls} 成功、\texttt{||} 短路跳过，
+命令具备幂等性。stderr 丢弃到 \texttt{/dev/null} 避免把错误信息打印到终端。
+\end{resbox}
+
+\hwbanner{exptwo}{第 7 题}{为什么 \texttt{cd} 是内建命令}
+\begin{reqbox}{exptwo}
+  为什么 \texttt{cd} 必须是 Shell 内建命令，而不能是独立程序？
+  （提示：想想子进程能影响和不能影响父进程的哪些状态。）
+\end{reqbox}
+\begin{resbox}{exptwo}
+\textbf{答：}（\texttt{7.txt}）
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \texttt{cd} 的作用是修改\emph{当前 shell 进程}自身的工作目录；
+  \item 若 \texttt{cd} 是独立程序，shell 必须先 \texttt{fork} 出子进程再 \texttt{exec} 它，
+        子进程切换的只是\emph{它自己}的工作目录；
+  \item 子进程退出后其状态（包括 cwd 变化）不会传回父进程，对父进程毫无影响；
+  \item 因此 \texttt{cd} 必须由 shell 进程\emph{内部}直接实现，即内建命令，
+        才能就地修改 shell 自己的 cwd，使后续命令在新的目录下解析相对路径。
+\end{itemize}
+\end{resbox}
+
+\hwbanner{exptwo}{第 8 题}{检查文件是否存在}
+\begin{reqbox}{exptwo}
+  写一个脚本，接收文件名参数（\texttt{\$1}），用 \texttt{test -f} 或
+  \texttt{[ -f ... ]} 检查该文件是否存在，并根据结果输出不同提示。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{8.sh}）}
+\begin{lstlisting}[style=shell]
+#!/bin/sh
+if [ $# -lt 1 ]; then
+    echo "File Path is required!" >&2
+    exit 1
+fi
+FP=$1
+if [ -f $FP ]; then
+    echo "File exists"
+    exit 0
+else
+    echo "File doesn't exist"
+    exit 1
+fi
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 8.sh 7.txt
+File exists
+$ echo $?
+0
+$ sh 8.sh nope.txt
+File doesn't exist
+$ echo $?
+1
+\end{lstlisting}
+无参数时写 stderr 并以 1 退出；存在/不存在分别以 0/1 退出码区分，便于脚本间串联判断。
+\end{resbox}
+
+\hwbanner{exptwo}{第 9 题}{可执行权限}
+\begin{reqbox}{exptwo}
+  把第 8 题脚本保存为文件，先运行 \texttt{./8.sh somefile}，会发生什么？
+  然后执行 \texttt{chmod +x 8.sh} 再试一次。为什么这一步是必须的？
+  （提示：比较 \texttt{chmod} 前后的 \texttt{ls -l 8.sh}。）
+\end{reqbox}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ ./8.sh 8.sh
+bash: ./8.sh: 权限不够
+$ echo $?
+126
+$ ls -l 8.sh
+-rw-r--r-- 1 pjh123 pjh123 176 8月31日 8.sh
+$ chmod +x 8.sh
+$ ls -l 8.sh
+-rwxr-xr-x 1 pjh123 pjh123 176 8月31日 8.sh
+$ ./8.sh 8.sh
+File exists
+\end{lstlisting}
+\textbf{答：}Linux 内核只允许执行\emph{带可执行位}的文件：\texttt{chmod} 前
+权限为 \texttt{-rw-r--r--}，没有 \texttt{x} 位，\texttt{execve} 被内核以
+\texttt{EACCES} 拒绝，shell 报“权限不够”（退出码 126）；加上 \texttt{+x}
+（\texttt{-rwxr-xr-x}）后内核放行，脚本才能作为命令直接运行。
+\end{resbox}
+
+\hwbanner{exptwo}{第 10 题}{\texttt{set -x} 调试输出}
+\begin{reqbox}{exptwo}
+  在脚本的 \texttt{set} 选项里加入 \texttt{-x} 会发生什么？写个简单脚本试试并观察输出。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{10.sh}）}
+\begin{lstlisting}[style=shell]
+#!/bin/sh
+set -x
+name='Noa'
+echo "Hello, $name"
+count=3
+if [ $count -gt 1 ]; then
+    echo "count $(count) is greater than 1"
+else
+    echo "count is not greater than 1"
+fi
+set +x
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 10.sh
++ name=Noa
++ echo 'Hello, Noa'
+Hello, Noa
++ count=3
++ '[' 3 -gt 1 ']'
+++ count
+usage: count <expected line count>
++ echo 'count  is greater than 1'
+count  is greater than 1
++ set +x
+\end{lstlisting}
+\texttt{set -x} 开启 xtrace：shell 在执行每条命令\emph{之前}，把该命令连同
+变量/参数展开后的实际值以 \texttt{+} 前缀打印到 stderr（子命令用 \texttt{++}）；
+\texttt{set +x} 关闭。从输出可以看到 \texttt{\$(count)} 实际展开为空、
+\texttt{[}' 的真实形式 \texttt{'[' 3 -gt 1 ']} 等“幕后”细节，
+这正是调试脚本中条件与展开是否如预期的手段。
+\end{resbox}
+
+\hwbanner{exptwo}{第 11 题}{带日期的备份脚本}
+\begin{reqbox}{exptwo}
+  写一条命令/脚本，把文件复制为带当天日期的备份文件名
+  （例如 \texttt{notes.txt} $\rightarrow$ \texttt{notes-2026-08-31.txt}）。
+  （提示：\texttt{\$(date +\%Y-\%m-\%d)}）
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{11.sh}）}
+\begin{lstlisting}[style=shell]
+#!/bin/sh
+if [ $# -lt 1 ]; then
+    echo "File path is required!"
+    exit 1
+fi
+FP=$1
+FPP=$(dirname "$FP")          # 所在目录
+FNEXT=$(basename $FP)         # 文件名
+FN="${FNEXT%.*}"              # 去掉后缀 -> 主名
+EXT="${FNEXT##*.}"            # 最长前缀匹配 -> 扩展名
+NFN="$FN-$(date +%Y-%m-%d).$EXT"
+ABSNFP="$FPP/$NFN"
+cp $FP $ABSNFP
+echo "Copy $FP to $ABSNFP"
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ printf 'hello\n' > notes.txt
+$ sh 11.sh notes.txt
+Copy notes.txt to ./notes-2026-08-31.txt
+$ cat notes-2026-08-31.txt
+hello
+\end{lstlisting}
+参数展开 \texttt{\${FNEXT\%.*}}（去掉最短的后缀 \texttt{.*}）与
+\texttt{\${FNEXT\#\#*.}}（剥掉最长的 \texttt{*.} 前缀）配合，可无损拆分
+“主名 + 扩展名”，再由 \texttt{date +\%Y-\%m-\%d} 插入当天日期生成备份名。
+\end{resbox}
+
+\hwbanner{exptwo}{第 12 题}{参数化 flaky test 复现脚本}
+\begin{reqbox}{exptwo}
+  修改讲义中“复现偶尔才会失败的测试”脚本：使它能够从命令行参数接收测试命令，
+  而不是在脚本中写死 \texttt{cargo test my\_test}。（提示：\texttt{\$1} 或 \texttt{\$@}）
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{12.sh}）}
+\begin{lstlisting}[style=shell]
+#!/bin/bash
+set -euo pipefail
+
+if [ $# -eq 0 ]; then
+    echo "Test command is required!"
+    exit 1
+fi
+CMD="$*"                     # 修改点：测试命令改为从参数接收
+
+# Start CPU stress in background
+stress --cpu 8 &
+STRESS_PID=$!
+
+# Setup log file
+LOGFILE="test_runs_$(date +%s).log"
+echo "Logging to $LOGFILE"
+
+# Run tests until one fails
+RUN=1
+while eval "$CMD" > "$LOGFILE" 2>&1; do   # 修改点：eval 执行外部命令
+    echo "Run $RUN passed"
+    ((RUN++))
+done
+
+# Cleanup and report
+kill $STRESS_PID
+echo "Test failed on run $RUN"
+echo "Last 20 lines of output:"
+tail -n 20 "$LOGFILE"
+echo "Full log: $LOGFILE"
+\end{lstlisting}
+相对讲义原脚本的修改：1. 开头增加参数校验（\texttt{\$\# -eq 0} 时报错退出）；
+2. 用 \texttt{CMD="\$*"} 收集全部参数、\texttt{eval "\$CMD"} 执行，替代写死的
+\texttt{cargo test my\_test}；3. \texttt{set -euo pipefail} 严格模式防坑。
+\begin{resbox}{exptwo}
+选取一条“第 1 次成功、第 2 次失败”的命令验证循环逻辑：
+\begin{lstlisting}[style=output]
+$ bash 12.sh '[ ! -f /tmp/w1mer_flag ] && touch /tmp/w1mer_flag'
+Logging to test_runs_1788158444.log
+Run 1 passed
+Test failed on run 2
+Last 20 lines of output:
+Full log: test_runs_1788158444.log
+\end{lstlisting}
+第 1 轮 \texttt{[ ! -f ... ]} 为真并落盘标记，测试通过；第 2 轮标记已存在，
+命令退出码 1，\texttt{while} 条件失败退出循环，脚本报告失败轮次并打印日志尾部，
+与讲义脚本行为一致，且测试命令完全由调用方指定。
+\end{resbox}
+
+% ================= 总结 =================
+\partbanner{expone}{三}{总结与收获}
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{课堂实验（q01--q04）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item 空格文件名要靠引号与 \texttt{cp --parents}、\texttt{find -printf} 等
+          不分词方案处理。
+    \item \texttt{sort | uniq -c} 配合多键排序即可完成“计数 + 多准则排序”。
+    \item Git 冲突解决的本质是手工裁决保留哪一侧，再补上补充内容。
+    \item LaTeX 交叉引用依赖两遍编译才能收敛编号。
+  \end{itemize}
+  \item \textbf{课后练习（第 1--12 题）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item glob 是 shell 在调用命令前完成的文件名展开，
+          \texttt{*}、\texttt{?} 与大括号各有语义。
+    \item 单引号、双引号、\texttt{\$'...'} 三种引号控制不同的展开程度。
+    \item 三条标准流可独立分流，\texttt{> f 2>\&1} 的书写顺序决定合并是否正确。
+    \item \texttt{\$?} 与 \texttt{\&\&}、\texttt{||} 可组合成一行式控制流。
+    \item \texttt{cd} 必须内建、脚本必须 \texttt{chmod +x}，
+          都源于“状态与权限只作用于自身进程”的进程模型。
+    \item \texttt{set -x} 打印展开后的真实命令，是调试脚本展开与条件走向的利器。
+    \item \texttt{\${var\%.*}} 与 \texttt{\${var\#\#*.}} 参数展开
+          可以不借助外部命令拆分文件名。
+  \end{itemize}
+\end{itemize}
+
+\end{document}
