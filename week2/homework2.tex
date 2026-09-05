@@ -1,0 +1,766 @@
+% !TEX program = xelatex
+% 系统开发工具基础 · 第 2 周课后实验报告
+% 编译：xelatex homework2.tex（两遍）
+
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
+
+\usepackage{amsmath}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{fontawesome5}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{positioning}
+
+% ---------- 字体 ----------
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+
+% ---------- 配色 ----------
+\definecolor{expone}{RGB}{41, 98, 168}    % 蓝：课堂实验
+\definecolor{exptwo}{RGB}{46, 125, 50}    % 绿：Shell 入门 13--18
+\definecolor{expthree}{RGB}{214, 116, 30}  % 橙：命令行环境
+\definecolor{expfour}{RGB}{106, 76, 172}  % 紫：备用
+
+% ---------- 页眉页脚 ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}系统开发工具基础}
+\fancyhead[R]{\small\color{gray}第 2 周课后实验报告}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{gray!50}\hrule width\headwidth height 0.4pt}
+
+% ---------- 自定义盒子 ----------
+\newtcolorbox{reqbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faBook\ 题目要求}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{resbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faCheckCircle\ 结果与验证}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{trapbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faLightbulb\ 要点与注意事项}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+
+% 部分横幅
+\newcommand{\partbanner}[3]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+    before skip=1.6em]
+    {\Large\bfseries\color{#1!70!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+% 小题横幅
+\newcommand{\hwbanner}[3]{%
+  \par\vspace{1.1em}
+  \begin{tcolorbox}[enhanced, colback=#1!8, colframe=#1!75!black,
+    boxrule=0.8pt, arc=2pt, left=7pt, right=7pt, top=4pt, bottom=4pt,
+    before skip=1.1em]
+    {\bfseries\color{#1!75!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.1em}\noindent\ignorespaces
+}
+% 小节小标题
+\newcommand{\sublabel}[2]{%
+  \par\vspace{0.8em}\noindent{\bfseries\color{#1!75!black}#2}\par\nobreak\vspace{0.25em}\noindent\ignorespaces
+}
+
+% ---------- 代码/输出样式 ----------
+\lstdefinestyle{shell}{
+  language=bash, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, keywordstyle=\color{expone!70!black},
+  commentstyle=\color{green!50!black}, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true,
+  numbers=left, numberstyle=\tiny\color{gray}
+}
+\lstdefinestyle{output}{
+  language={}, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true
+}
+
+\hypersetup{colorlinks=true, linkcolor=expfour!70!black, urlcolor=blue!60!black}
+\captionsetup{font=small, labelfont=bf}
+
+\begin{document}
+
+% ================= 标题区 =================
+\begin{center}
+  {\LARGE\bfseries 系统开发工具基础}\\[2pt]
+  {\Large 第 2 周课后实验报告}\\[14pt]
+  {\large 姓名：彭俊皓\qquad 学号：25020007100}\\[4pt]
+  {\large 2026 年 9 月 5 日}\\[4pt]
+  {\large 仓库：\url{https://github.com/pjh456/sys-devtool/}}\\[10pt]
+  \begin{tcolorbox}[enhanced, colback=expone!6, colframe=expone!60!black,
+    arc=2pt, boxrule=0.6pt, width=0.92\textwidth, center upper]
+    \small 本报告覆盖第 2 周课堂四道实验（\texttt{week2/q05}--\texttt{q08}）的
+    操作过程与结果，以及 missing-semester 两讲课后练习：《Shell 入门》第 13--18 题
+    （\texttt{homework/course-shell/}）与《命令行环境》的参数、环境变量、返回码练习
+    （\texttt{homework/command-line/}）；
+    全部结果均在本机重新执行验证。
+  \end{tcolorbox}
+\end{center}
+
+\vspace{0.4em}
+\begin{table}[htbp]
+  \centering
+  \caption{第 2 周课后实验完成情况}
+  \label{tab:overview}
+  \begin{tabular}{llll}
+    \toprule
+    部分 & 内容 & 关键工具 & 状态 \\
+    \midrule
+    一 & 课堂实验回顾（q05--q08） & trap、LSP、pdb、cProfile & \textcolor{expone}{\faCheckCircle\ 完成} \\
+    二 & 课后：《Shell 入门》第 13--18 题 & find、xargs、curl、jq & \textcolor{exptwo}{\faCheckCircle\ 完成} \\
+    三 & 课后：《命令行环境》练习 & \texttt{--}、diff、export、返回码 & \textcolor{expthree}{\faCheckCircle\ 完成} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ================= 第一部分：课堂实验回顾 =================
+\partbanner{expone}{一}{课堂实验回顾（q05--q08）}
+
+\hwbanner{expone}{q05}{控制一个可清理的后台任务}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 将给定脚本（\texttt{trap} 捕获 TERM/INT 并写 \texttt{cleanup.log}）保存为
+        \texttt{q05/worker.sh}，赋予执行权限，前台启动并把 stdout、stderr
+        分别写入 \texttt{stdout.log}、\texttt{stderr.log}；
+  \item 使用 Ctrl-Z 挂起任务，再用 \texttt{bg} 让它在后台继续，用 \texttt{jobs} 确认状态；
+  \item 使用 \texttt{jobs -p} 或等价方式取得 PID（不得手工抄写 PID），发送 SIGTERM 并等待任务结束；
+  \item 确认 \texttt{cleanup.log} 中出现 \texttt{CLEAN\_EXIT} 且任务已退出；禁止使用 \texttt{kill -9}。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faTerminal\ 操作过程}
+\begin{lstlisting}[style=shell]
+chmod +x worker.sh
+./worker.sh > stdout.log 2> stderr.log   # 前台启动，输出分流到两个日志
+^Z                                      # Ctrl-Z 挂起（SIGTSTP）
+bg                                      # 任务转后台继续运行
+jobs                                    # 确认：[1]+ 运行中  ./worker.sh
+kill -TERM $(jobs -p)                   # 用 jobs -p 取 PID 发 SIGTERM，不手抄
+wait                                    # 等待任务退出
+cat cleanup.log                         # 验证清理分支执行
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ head -3 stdout.log        # 每秒自增的计数，共 77 行（0..76）
+0
+1
+2
+$ tail -2 stdout.log
+75
+76
+$ cat stderr.log
+已终止                  sleep 1
+$ cat cleanup.log
+CLEAN_EXIT
+\end{lstlisting}
+\texttt{CLEAN\_EXIT} 出现在 \texttt{cleanup.log}，说明 SIGTERM 触发了
+\texttt{trap} 的清理命令后才 \texttt{exit 0}；此时 \texttt{jobs} 中已无该任务。
+\end{resbox}
+\begin{trapbox}{expone}
+  Ctrl-Z 发的是 \texttt{SIGTSTP}（终端停止），\texttt{bg} 让挂起的任务在后台继续；
+  \texttt{trap} 注册的清理命令在收到 TERM/INT 时先执行、再退出；
+  题目禁用 \texttt{kill -9}（SIGKILL），因为 SIGKILL 无法被进程捕获，
+  清理代码没有执行机会。
+\end{trapbox}
+
+\hwbanner{expone}{q06}{语义重构与本地开发反馈}
+\begin{reqbox}{expone}
+  按给定代码在 \texttt{q06} 创建三个 Python 文件（\texttt{total\_price} 函数 + 调用 + 测试）；
+  在配置好 Python、pytest、ruff 的环境中启用 Python 语言服务器，
+  演示跳转定义与查找引用；用“重命名符号”把 \texttt{total\_price} 改为
+  \texttt{calculate\_total}（定义与所有引用同步）；在 \texttt{app.py} 临时加入未使用的
+  \texttt{import os}，用 ruff 发现并删除；最后 ruff 与 pytest 均通过。
+\end{reqbox}
+\sublabel{expone}{\faCode\ 操作过程}
+  给定三文件（\texttt{math\_utils.py} 定义 \texttt{total\_price}，\texttt{app.py}
+  调用并打印，\texttt{test\_math\_utils.py} 断言 \texttt{12.5 * 4 == 50.0}）创建后：
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 在 \texttt{app.py} 的 \texttt{total\_price} 调用处跳转定义，
+        落点为 \texttt{math\_utils.py} 第 1 行；在定义处查找引用，
+        命中 \texttt{app.py} 与 \texttt{test\_math\_utils.py} 各一处；
+  \item 对定义执行 Rename Symbol：\texttt{total\_price} $\rightarrow$ \texttt{calculate\_total}，
+        语言服务器按引用关系同步修改全部 3 处；
+  \item 在 \texttt{app.py} 顶部临时加入 \texttt{import os}，运行 ruff 报告后删除该行，复验。
+\end{itemize}
+\begin{lstlisting}[style=shell]
+.venv/bin/ruff check .        # 含 import os 时报错，删除后通过
+.venv/bin/pytest
+.venv/bin/python app.py
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ .venv/bin/ruff check .          # import os 存在时
+F401 [*] `os` imported but unused
+ --> app.py:1:8
+$ .venv/bin/ruff check .          # 删除 import os 后
+All checks passed!
+$ .venv/bin/pytest
+test_math_utils.py::test_total_price PASSED
+1 passed in 0.01s
+$ .venv/bin/python app.py
+50.0
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{expone}
+  重命名用语言服务器的 Rename Symbol 而非全局文本替换：它按符号引用关系修改，
+  不会误伤字符串或注释里的同名内容；ruff 的 F401 规则专门检查未使用的导入，
+  与 pytest 一起构成“静态检查 + 动态验证”的本地反馈闭环。
+\end{trapbox}
+
+\hwbanner{expone}{q07}{用调试器定位归并排序缺陷}
+\begin{reqbox}{expone}
+  给定代码的 \texttt{merge} 在 else 分支存在缺陷（\texttt{result.append(right[i])}）：
+  先运行给定输入确认结果错误；用调试器在 \texttt{merge} 设断点并观察
+  \texttt{i}、\texttt{j}、\texttt{left[i]}、\texttt{right[j]}；
+  完成最小修复（不得用 \texttt{sorted} 替换归并排序）；
+  用 pytest 增加两个测试：给定输入与含重复元素的列表。
+\end{reqbox}
+\sublabel{expone}{\faBolt\ 确认缺陷}
+\begin{lstlisting}[style=output]
+$ python3 merge_sort.py        # 修复前，给定输入 [3,1,4,1,5,9,2,6]
+[1, 5, 4, 3, 4, 5, 6, 9]      # 错误，应为 [1, 1, 2, 3, 4, 5, 6, 9]
+\end{lstlisting}
+\sublabel{expone}{\faBug\ 调试定位与最小修复}
+用 \texttt{pdb} 在 \texttt{merge} 循环内设断点、单步执行：第一层调用
+\texttt{merge([1,3],[1,4])} 走到 \texttt{i=1, j=0} 时，
+\texttt{left[i]=3}、\texttt{right[j]=1}，\texttt{3<=1} 不成立进入 else 分支，
+代码取的是 \texttt{right[i]}=\texttt{right[1]}=4，而正确值应为
+\texttt{right[j]}=\texttt{right[0]}=1——缺陷确认。
+最小修复（1 个字符，\texttt{q07/merge\_sort.py}）：
+\begin{lstlisting}[style=shell]
+-             result.append(right[i]); j += 1   # 此处存在缺陷
++             result.append(right[j]); j += 1
+\end{lstlisting}
+\begin{resbox}{expone}
+按题目要求增加的两个测试（\texttt{test\_merge\_sort.py}）：
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \texttt{test\_constant\_input\_array\_sort}：给定输入
+        \texttt{[3,1,4,1,5,9,2,6]} $\rightarrow$ \texttt{[1,1,2,3,4,5,6,9]}；
+  \item \texttt{test\_multiple\_element\_sort}：含重复元素
+        \texttt{[3,4,5,5,1,2,3,7,8]} $\rightarrow$ \texttt{[1,2,3,3,4,5,5,7,8]}。
+\end{itemize}
+\begin{lstlisting}[style=output]
+$ .venv/bin/pytest -v
+test_merge_sort.py::test_constant_input_array_sort PASSED
+test_merge_sort.py::test_multiple_element_sort PASSED
+2 passed in 0.01s
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{expone}
+  缺陷根因：else 分支消费的是 \texttt{right} 侧的元素，索引却误用左指针 \texttt{i}；
+  当 \texttt{i==j} 时恰同值不暴露，\texttt{i>j} 时必然出错。
+  两个测试正好覆盖“给定输入”与“重复元素”两种要求；
+  用 \texttt{sorted} 会掩盖归并逻辑本身，题目禁止。
+\end{trapbox}
+
+\hwbanner{expone}{q08}{先测量，再优化慢速词频程序}
+\begin{reqbox}{expone}
+  在 \texttt{q08} 用 \texttt{generate\_words.py}（固定种子 20260831、1000 词表、30000 词）
+  生成可重复词表；对故意低效的去重程序用 \texttt{time} 运行 2 次记录耗时；
+  用 \texttt{cProfile -s cumulative} 运行一次找出主要耗时位置；
+  在不改变最终 \texttt{count} 的前提下优化（不得写死 1000）；
+  相同输入再运行 2 次，计算优化前后中位数与加速比。
+\end{reqbox}
+\sublabel{expone}{\faCode\ 原程序与剖析}
+\begin{lstlisting}[style=output]
+# wordfreq.py 原版：list 成员判断为 O(n^2)
+words = open("words.txt", encoding="utf-8").read().split()
+unique = []
+for word in words:
+    if word not in unique:
+        unique.append(word)
+print("count=", len(unique))
+\end{lstlisting}
+\begin{lstlisting}[style=output]
+$ time python3 wordfreq.py        # 两次
+real  0m0.121s                   # real  0m0.122s
+$ python3 -m cProfile -s cumulative wordfreq.py
+1012 function calls in 0.109 seconds
+     1    0.108    0.108    0.109    0.109 wordfreq.py:1(<module>)
+        # 耗时集中在顶层 for 循环的 `in` 判断（list 查找 O(n^2)）
+\end{lstlisting}
+\sublabel{expone}{\faBolt\ 优化}
+\begin{lstlisting}[style=output]
+# 优化版：dict.fromkeys 一次遍历去重且保序，count 不变、不写死 1000
+words = open("words.txt", encoding="utf-8").read().split()
+unique = list(dict().fromkeys(words))
+print("count=", len(unique))
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ time python3 wordfreq.py        # 优化后两次
+real  0m0.013s                   # real  0m0.013s
+$ python3 -m cProfile -s cumulative wordfreq.py
+13 function calls in 0.002 seconds
+     1    0.001    0.001    0.001    0.001 {built-in method fromkeys}
+$ count= 1000                    # 优化前后 count 一致
+$ ./calc_speed.sh                 # 中位数与加速比
+before version median: 0.121 s
+after version median: 0.013 s
+Speed up times: 9.35
+\end{lstlisting}
+核算：原程序中位数 $(0.121+0.122)/2=0.1215\,\text{s}$，
+优化后 $(0.013+0.013)/2=0.013\,\text{s}$，
+$0.1215/0.013\approx 9.35\times$，与 \texttt{calc\_speed.sh} 输出一致。
+\end{resbox}
+\begin{trapbox}{expone}
+  先测量再优化：\texttt{cProfile -s cumulative} 把嫌疑直接指到模块顶层的
+  \texttt{for} 循环（\texttt{wordfreq.py:1} 占 0.108/0.109 s），
+  而非凭感觉改；\texttt{dict.fromkeys} 在 C 层一次完成“去重 + 保序”，
+  把 O(n\textsuperscript{2}) 降到 O(n)，语义与原程序完全等价。
+\end{trapbox}
+
+% ================= 第二部分：Shell 入门 13--18 =================
+\partbanner{exptwo}{二}{课后练习：missing-semester《Shell 入门》第 13--18 题}
+
+\hwbanner{exptwo}{第 13 题}{home 目录最常见的 5 种文件扩展名}
+\begin{reqbox}{exptwo}
+  使用管道找出 home 目录中最常见的 5 种文件扩展名。
+  （提示：组合 \texttt{find}、\texttt{grep}/\texttt{sed}/\texttt{awk}、
+  \texttt{sort}、\texttt{uniq -c} 以及 \texttt{head}）
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{course-shell/13.sh}）}
+\begin{lstlisting}[style=shell]
+find . ~ -type f -exec basename {} \; \
+  | sed "s/.*\.//" \
+  | sort --reverse \
+  | uniq -c | sort --numeric-sort --reverse \
+  | head -5
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 13.sh
+121086 js
+62115 html
+49495 o
+47974 py
+36275 h
+\end{lstlisting}
+输出为扩展名计数的实测结果（home 下 node 模块的 \texttt{.js}、
+浏览器缓存的 \texttt{.html} 等构成前三）。
+复跑验证用 \texttt{fd}（约 3 s）：
+\begin{lstlisting}[style=output]
+fd -H --no-ignore -t f . . ~ | sed 's|.*\.||' \
+  | sort --reverse | uniq -c | sort --numeric-sort --reverse | head -5
+\end{lstlisting}
+与 \texttt{13.sh} 的输出完全一致。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{sed "s/.*\.//"} 取最后一个点之后的部分即扩展名
+  （\texttt{a.b.c} $\rightarrow$ \texttt{c}）；\texttt{uniq -c} 只统计相邻行，
+  所以计数前必须先 \texttt{sort}；末段 \texttt{sort -nr | head -5} 按次数取前 5。
+  \texttt{-exec basename \{\} \;} 对每个文件 fork 一个进程，在本机 home
+  规模下超过 2 分钟跑不完，故复跑改用 \texttt{fd}：
+  \texttt{-H} 包含隐藏文件、\texttt{--no-ignore} 不理会 \texttt{.gitignore}
+  等忽略规则、\texttt{-t f} 只取普通文件，与 \texttt{find -type f}
+  的文件集一致，计数因此完全相同。
+\end{trapbox}
+
+\hwbanner{exptwo}{第 14 题}{find + xargs 统计 .sh 行数}
+\begin{reqbox}{exptwo}
+  \texttt{xargs} 会把 stdin 的每一行转换为命令参数。结合 \texttt{find}
+  和 \texttt{xargs}（不要用 \texttt{find -exec}）找出目录中所有 \texttt{.sh}
+  文件并用 \texttt{wc -l} 统计每个文件行数；
+  加分项：正确处理文件名中的空格（提示：\texttt{-print0} 和 \texttt{-0}）。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{course-shell/14.sh}）}
+\begin{lstlisting}[style=shell]
+if [ $# -lt 1 ]; then
+    echo "Directory cannot be empty!"
+    exit 1
+fi
+DIR=$1
+if [ ! -d $DIR ]; then
+    echo "Given path is not a directory!"
+    exit 1
+fi
+find $DIR -type f -name "*.sh" -print0 | xargs -0 wc -l
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 14.sh /home/pjh123/homework/sys-devtool/homework
+ 1 /home/pjh123/.../homework/course-shell/3/lsfile.sh
+ 1 /home/pjh123/.../homework/course-shell/3/lsstar.sh
+ 2 /home/pjh123/.../homework/course-shell/15.sh
+152 总计
+\end{lstlisting}
+逐文件行数 + 末行总计；对含空格的目录参数做了非空与目录存在性校验。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{-print0} 以 \texttt{\textbackslash0} 而非换行分隔路径，
+  \texttt{xargs -0} 按 \texttt{\textbackslash0} 切分参数，
+  二者配对后文件名中的空格、换行都不会导致分词错误；
+  不用 \texttt{-exec} 也满足题目“xargs 转换参数”的要求。
+\end{trapbox}
+
+\hwbanner{exptwo}{第 15 题}{curl 统计课程讲数}
+\begin{reqbox}{exptwo}
+  使用 \texttt{curl} 获取课程网站 \texttt{https://missing.csail.mit.edu/} 的 HTML，
+  通过 \texttt{grep} 统计列出了多少讲。
+  （提示：找出每讲课程名称在 HTML 中的共性；用 \texttt{curl -s} 关闭进度输出）
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{course-shell/15.sh}）}
+\begin{lstlisting}[style=shell]
+curl -s https://missing.csail.mit.edu/ | grep "href=\"/20" | wc -l
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 15.sh
+20
+\end{lstlisting}
+课程主页 2026 年栏目里每讲链接形如 \texttt{href="/2026/..."}，
+以 \texttt{href="/20} 为共性计数得 20 个讲次链接。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{curl -s} 关闭进度条，避免把进度信息混进管道；
+  用“每讲链接的公共前缀”而非具体讲名做 grep，
+  课程增减讲时脚本依然成立。
+\end{trapbox}
+
+\hwbanner{exptwo}{第 16 题}{curl + jq 处理 JSON}
+\begin{reqbox}{exptwo}
+  用 \texttt{curl} 获取示例数据
+  \texttt{https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json}，
+  再用 \texttt{jq} 提取 \texttt{version} 大于 6 的人员姓名。
+  （提示：先 \texttt{jq .} 看结构；再试 \texttt{jq '.[] | select(...) | .name'}）
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{course-shell/16.sh}）}
+\begin{lstlisting}[style=shell]
+curl https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json \
+  | jq '.[] | select(.version > 6) | .name'
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 16.sh | head -4
+"Adeel Solangi"
+"Aamir Solangi"
+"Adil Eli"
+"Adil Abro"
+$ sh 16.sh | wc -l
+89
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{exptwo}
+  jq 过滤链：\texttt{.[]} 展开数组元素 $\rightarrow$
+  \texttt{select(.version > 6)} 保留满足条件的对象 $\rightarrow$
+  \texttt{.name} 投影出姓名字段；先用 \texttt{jq .} 观察顶层结构
+  （人员数组）再写选择器，避免猜字段名。
+\end{trapbox}
+
+\hwbanner{exptwo}{第 17 题}{awk 按列过滤并交换列}
+\begin{reqbox}{exptwo}
+  \texttt{awk} 可以按列值过滤行并改写输出。写一个 \texttt{awk} 命令：
+  只输出第二列大于 100 的行，并交换第一列和第三列。
+  测试命令：\texttt{printf 'a 50 x\textbackslash nb 150 y\textbackslash nc 200 z\textbackslash n'}
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{course-shell/17.sh}）}
+\begin{lstlisting}[style=shell]
+printf 'a 50 x\nb 150 y\nc 200 z\n' | awk '$2 > 100 { print $3, $2, $1 }'
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 17.sh
+y 150 b
+z 200 c
+\end{lstlisting}
+第一行（50）被过滤；保留行的第一、三列互换，第二列位置不变。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  条件表达式放在模式位置（\texttt{\$2 > 100}），动作块里
+  \texttt{print \$3, \$2, \$1} 直接以新顺序输出三列，
+  无需先存中间变量；\texttt{\$2} 默认按字符串/数值双态比较，
+  纯数字列可安全做数值判断。
+\end{trapbox}
+
+\hwbanner{exptwo}{第 18 题}{拆解 SSH 日志管道 + history 最常用命令}
+\begin{reqbox}{exptwo}
+  拆解讲义中的 SSH 日志处理管道：每一步分别做了什么？
+  然后仿照它构建一个管道，从 \texttt{\textasciitilde/.bash\_history}
+  （或 \texttt{\textasciitilde/.zsh\_history}）中找出最常用的 Shell 命令。
+\end{reqbox}
+\sublabel{exptwo}{\faBolt\ 管道拆解（\texttt{course-shell/18/explain.txt}）}
+原管道共 7 步，逐步拆解（摘要自 \texttt{explain.txt}）：
+\begin{enumerate}[leftmargin=1.6em, itemsep=1pt]
+  \item \texttt{ssh myserver '...'}：登录远端执行引号内命令；
+        \texttt{journalctl -u sshd -b-1} 取 sshd 服务上次启动以来的日志；
+        \texttt{grep "Disconnected from"} 筛出断开连接行；
+  \item \texttt{sed -E 's/...\textbackslash1/'}：正则替换，\texttt{\textbackslash1} 取
+        \texttt{(.*)} 捕获的用户名，\texttt{[^^ ]+ port.*} 吃掉行尾无关内容；
+  \item \texttt{sort | uniq -c}：排序后统计每个用户名的出现次数；
+  \item \texttt{sort -nk1,1}：按次数字段（第 1 列）数值升序；
+  \item \texttt{tail -n10}：保留末尾 10 行，即次数最多的 10 个用户；
+  \item \texttt{awk '{print \$2}'}：去掉次数列，只留用户名；
+  \item \texttt{paste -sd,}：全部合并为一行、以逗号分隔。
+\end{enumerate}
+最终输出即“上次启动以来 ssh 断联次数最多的 10 个用户”。
+\sublabel{exptwo}{\faTerminal\ 仿写：最常用命令（\texttt{course-shell/18/check\_command.sh}）}
+\begin{lstlisting}[style=shell]
+cat ~/.bash_history | sort | uniq -c | sort -nk1,1 | tail -n1 \
+  | awk '{ print $2 }'
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 18/check_command.sh
+clear
+\end{lstlisting}
+与讲义同构：history 流 $\rightarrow$ \texttt{sort | uniq -c} 计数
+$\rightarrow$ \texttt{sort -nk1,1 | tail -n1} 取最高频
+$\rightarrow$ \texttt{awk} 投影出命令本身；本机 history 中最高频的是
+\texttt{clear}。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  仿写时把 \texttt{tail -n10} 收紧为 \texttt{tail -n1} 即得“最常用的一条”；
+  \texttt{awk '{print \$2}'} 只取每行第 2 个字段（命令名），
+  不含参数；若 history 跨行存储（多行命令），此法会按行计数，
+  属于该简化的已知局限。
+\end{trapbox}
+
+% ================= 第三部分：命令行环境 =================
+\partbanner{expthree}{三}{课后练习：missing-semester《命令行环境》}
+
+\hwbanner{expthree}{参数 · 1}{\texttt{--} 选项终止符}
+\begin{reqbox}{expthree}
+  \texttt{cmd --flag -- --notaflag} 中的 \texttt{--} 是特殊参数：
+  告诉程序其后不再解析选项，全部按位置参数处理。这有什么用？
+  运行 \texttt{touch -- -myfile}，然后在不使用 \texttt{--} 的情况下把它删掉。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 解答（\texttt{command-line/params/1.sh}）}
+\begin{lstlisting}[style=shell]
+touch -- -myfile
+rm ./-myfile
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ sh 1.sh
+$ ls -la -- -myfile     # 确认已删除
+ls: 无法访问 '-myfile': 没有那个文件或目录
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{expthree}
+  没有 \texttt{--} 时，\texttt{-myfile} 会被 \texttt{touch} 当作选项解析
+  （未知选项直接报错）；删除时改用 \texttt{./-myfile}：
+  以 \texttt{./} 开头的路径不再是 \texttt{-} 起始，
+  无需 \texttt{--} 也不会被误认为选项。
+\end{trapbox}
+
+\hwbanner{expthree}{参数 · 2}{ls 组合选项}
+\begin{reqbox}{expthree}
+  阅读 \texttt{man ls}，写出一条 \texttt{ls} 命令：包含所有文件（含隐藏文件）、
+  文件大小以易读格式显示、按最近修改时间排序、输出带颜色。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 解答（\texttt{command-line/params/2.sh}）}
+\begin{lstlisting}[style=shell]
+ls -alt --human-readable --color
+\end{lstlisting}
+\begin{resbox}{expthree}
+在 \texttt{week2/q08} 下运行（终端中目录名带颜色，此处略去）：
+\begin{lstlisting}[style=output]
+$ sh 2.sh | head -4
+总计 200K
+drwxr-xr-x 4 pjh123 pjh123 4.0K  8月31日 14:28 .
+-rw-r--r-- 1 pjh123 pjh123   43  8月31日 14:28 .gitignore
+-rw-r--r-- 1 pjh123 pjh123  194  8月31日 14:27 generate_words.py
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{expthree}
+  四个要求对应 \texttt{-a}（含隐藏）、\texttt{-h}（长选项
+  \texttt{--human-readable}，\texttt{43} $\rightarrow$ \texttt{4.0K} 量级可读）、
+  \texttt{-t}（按 mtime 排序）与 \texttt{--color}；
+  单横线短选项可合并为 \texttt{-alt}，且选项顺序无关
+  （\texttt{-alt} 与 \texttt{-tal} 等价）。
+\end{trapbox}
+
+\hwbanner{expthree}{参数 · 3}{printenv 与 export 的差异}
+\begin{reqbox}{expthree}
+  进程替换 \texttt{<(command)} 可以把命令输出当成文件用。
+  配合 \texttt{diff} 和进程替换比较 \texttt{printenv} 与 \texttt{export}
+  的输出，解释它们为什么不一样。
+  （提示：\texttt{diff <(printenv | sort) <(export | sort)}）
+\end{reqbox}
+\sublabel{expthree}{\faTerminal\ 操作}
+\begin{lstlisting}[style=shell]
+diff <(printenv | sort) <(export | sort) | head -6
+export | head -2
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ diff <(printenv | sort) <(export | sort) | head -3
+1,58c1,58
+< AGENT=1
+< CARGO_BUILD_JOBS=8
+$ diff <(printenv | sort) <(export | sort) | sed -n '60,63p'
+---
+> declare -x AGENT="1"
+> declare -x CARGO_BUILD_JOBS="8"
+$ export | head -2
+declare -x AGENT="1"
+declare -x CARGO_BUILD_JOBS="8"
+\end{lstlisting}
+两边共 58 个变量逐行不同（\texttt{1,58c1,58}），差异来源
+（\texttt{params/3.txt}）：
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \textbf{格式不同}：\texttt{printenv} 输出 \texttt{key=value}；
+        \texttt{export} 输出 \texttt{declare -x key="value"}；
+  \item \textbf{空值处理不同}：\texttt{printenv} 不显示空值的导出变量，
+        \texttt{export} 会显示；可用 \texttt{declare +x KEY} 取消导出。
+\end{itemize}
+\end{resbox}
+\begin{trapbox}{expthree}
+  \texttt{<(cmd)} 是进程替换：shell 把命令输出写入临时文件（如
+  \texttt{/dev/fd/63}），再用该文件名替换 \texttt{<(...)}，
+  于是 \texttt{diff} 可以把两个“只存在于管道中的流”当普通文件比较，
+  无需先落盘成临时文件。
+\end{trapbox}
+
+\hwbanner{expthree}{环境变量 · 1}{marco / polo}
+\begin{reqbox}{expthree}
+  写两个 bash 函数 \texttt{marco} 与 \texttt{polo}：执行 \texttt{marco}
+  时保存当前工作目录；之后无论切到哪个目录，执行 \texttt{polo}
+  都应 \texttt{cd} 回 \texttt{marco} 时的目录。
+  代码写进 \texttt{marco.sh}，通过 \texttt{source marco.sh} 加载到当前 shell。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 解答（\texttt{command-line/env/marco.sh}）}
+\begin{lstlisting}[style=shell]
+marco() {
+	export MARCO_POLO_DIR="$(pwd)"
+}
+polo() {
+	if [ -z "$MARCO_POLO_DIR" ]; then
+		echo "Error: Run 'marco' first!"
+		return 1
+	fi
+	cd "$MARCO_POLO_DIR" || echo "Error: Directory no longer exists!"
+}
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ source marco.sh
+$ polo                          # 尚未执行 marco
+Error: Run 'marco' first!
+$ marco
+$ cd /
+$ polo
+$ pwd
+/tmp/opencode                   # 回到 marco 时的目录
+\end{lstlisting}
+未先 \texttt{marco} 时 \texttt{polo} 报错并返回 1；
+正常路径下 \texttt{marco $\rightarrow$ cd / $\rightarrow$ polo} 准确返回原目录。
+\end{resbox}
+\begin{trapbox}{expthree}
+  判空必须写 \texttt{[ -z "\$MARCO\_POLO\_DIR" ]}（展开变量）：
+  若写成 \texttt{[ -z "MARCO\_POLO\_DIR" ]}，检查的是字符串字面量，
+  永远非空，错误分支不会触发；
+  \texttt{export} 使变量进入环境变量，子进程也能继承；
+  函数必须用 \texttt{source} 加载——\texttt{./marco.sh} 会在子 shell
+  中执行，子 shell 退出后函数定义随之消失。
+\end{trapbox}
+
+\hwbanner{expthree}{返回码 · 1}{循环运行直到失败}
+\begin{reqbox}{expthree}
+  假设你有一个很少失败的命令。写一个 bash 脚本：不断运行给定的
+  worker 脚本直到它失败，把标准输出和标准错误分别保存到文件，
+  最后把结果打印出来；如果还能顺便报告它运行了多少次才失败，就加分。
+  （worker 脚本以 \texttt{RANDOM \% 100 == 42} 为失败条件，
+  失败时 \texttt{exit 1} 并向 stderr 写错误信息）
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 解答（\texttt{command-line/retcode/}）}
+\begin{lstlisting}[style=shell]
+# runner.sh
+CNT=0
+while true; do
+    if ./worker.sh 1> stdout.log 2> stderr.log; then
+        ((CNT++))
+    else
+        cat stdout.log
+        cat stderr.log
+        echo "Error happens after $CNT trials"
+        break
+    fi
+done
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ ./runner.sh
+Something went wrong
+The error was using magic numbers
+Error happens after 41 trials
+$ cat stdout.log
+Something went wrong
+$ cat stderr.log
+The error was using magic numbers
+\end{lstlisting}
+成功轮次的输出被 \texttt{stdout.log} 覆盖、终端保持安静；
+失败轮次才把两条流分别落盘并原样打印，\texttt{CNT} 报告成功轮数（加分项）。
+\end{resbox}
+\begin{trapbox}{expthree}
+  worker 以 \texttt{exit 1} 表示失败，\texttt{if} 依据返回码分支
+  （0 = 成功，非 0 = 失败）——这正是 Shell 的“返回码即接口”约定；
+  \texttt{1>} 与 \texttt{2>} 把两条流分开保存，
+  失败后可分别核对“程序说什么”与“错误是什么”；
+  失败概率 1/100，平均约 100 次命中，本次运行成功 41 轮、
+  第 42 次失败，与预期量级一致。
+\end{trapbox}
+
+% ================= 总结 =================
+\partbanner{expone}{四}{总结与收获}
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{课堂实验（q05--q08）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item Ctrl-Z 对应 \texttt{SIGTSTP} 挂起、\texttt{bg}/\texttt{fg} 切换前后台；
+          \texttt{trap} 让脚本在 TERM/INT 上先清理再退出，
+          SIGKILL 无法被捕获所以题目禁用 \texttt{kill -9}。
+    \item 语言服务器的 Rename Symbol 按引用关系同步重命名，
+          比全局文本替换安全；ruff 查静态问题、pytest 跑动态验证。
+    \item 调试器定位缺陷的关键是单步到“实际值与期望值分叉”的那一轮，
+          对照 \texttt{i}、\texttt{j} 与两侧元素即可看出索引取错。
+    \item 性能工作流是“先测量、再优化、再复测”：
+          \texttt{cProfile -s cumulative} 找热点，
+          \texttt{time} 各测多次取中位数，最后算加速比。
+  \end{itemize}
+  \item \textbf{课后练习（Shell 13--18 + 命令行环境）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item \texttt{uniq -c} 只统计相邻行，计数前必须 \texttt{sort}；
+          取 Top-N 用 \texttt{sort -nr | head}。
+    \item \texttt{-print0 | xargs -0} 是处理含空格文件名的标准搭配。
+    \item jq 的“展开 $\rightarrow$ select $\rightarrow$ 投影”三步过滤链
+          能替代大段手工解析。
+    \item \texttt{--} 终止选项解析、\texttt{./} 前缀改写路径，
+          二者都是应对 \texttt{-} 开头文件名的手段。
+    \item 进程替换 \texttt{<(cmd)} 让“流”以文件名身份参与命令，
+          比较两个命令输出不再需要临时文件。
+    \item 环境变量经 \texttt{export} 进入子进程环境；
+          shell 函数必须 \texttt{source} 进当前 shell 才存活。
+    \item 返回码驱动 \texttt{if}/\texttt{while}，
+          “循环运行直到失败 + 分流通路落盘 + 计数”是复现偶发故障的通用骨架。
+  \end{itemize}
+\end{itemize}
+
+\end{document}
