@@ -9,5 +9,12 @@ opt = torch.optim.SGD(model.parameters(), lr=0.1)
 for _ in range(200):
     pred = model(x)
     loss = loss_fn(pred, y)
-    # TODO：清空梯度、反向传播、更新参数
-# TODO：进入评估模式并在 no_grad 中打印最终损失、weight 和 bias
+    opt.zero_grad()
+    loss.backward()
+    opt.step()
+model.eval()
+with torch.no_grad():
+    final_loss = loss_fn(model(x), y)
+    print(f"final loss: {final_loss.item():.6f}")
+    print(f"weight: {model.weight.item():.6f}")
+    print(f"bias: {model.bias.item():.6f}")
