@@ -1,0 +1,1 @@
+alias dc=cd
