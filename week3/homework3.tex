@@ -1,0 +1,606 @@
+% !TEX program = xelatex
+% 系统开发工具基础 · 第 3 周课后实验报告
+% 编译：xelatex homework3.tex（两遍）
+
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
+
+\usepackage{amsmath}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{fontawesome5}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{positioning}
+
+% ---------- 字体 ----------
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+
+% ---------- 配色 ----------
+\definecolor{expone}{RGB}{41, 98, 168}    % 蓝：课堂实验
+\definecolor{exptwo}{RGB}{46, 125, 50}    % 绿：命令控与别名
+\definecolor{expthree}{RGB}{214, 116, 30}  % 橙：文件查找
+\definecolor{expfour}{RGB}{106, 76, 172}  % 紫：配置文件与 CI
+
+% ---------- 页眉页脚 ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}系统开发工具基础}
+\fancyhead[R]{\small\color{gray}第 3 周课后实验报告}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{gray!50}\hrule width\headwidth height 0.4pt}
+
+% ---------- 自定义盒子 ----------
+\newtcolorbox{reqbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faBook\ 题目要求}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{resbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faCheckCircle\ 结果与验证}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{trapbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faLightbulb\ 要点与注意事项}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+
+% 部分横幅
+\newcommand{\partbanner}[3]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+    before skip=1.6em]
+    {\Large\bfseries\color{#1!70!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+% 小题横幅
+\newcommand{\hwbanner}[3]{%
+  \par\vspace{1.1em}
+  \begin{tcolorbox}[enhanced, colback=#1!8, colframe=#1!75!black,
+    boxrule=0.8pt, arc=2pt, left=7pt, right=7pt, top=4pt, bottom=4pt,
+    before skip=1.1em]
+    {\bfseries\color{#1!75!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.1em}\noindent\ignorespaces
+}
+% 小节小标题
+\newcommand{\sublabel}[2]{%
+  \par\vspace{0.8em}\noindent{\bfseries\color{#1!75!black}#2}\par\nobreak\vspace{0.25em}\noindent\ignorespaces
+}
+
+% ---------- 代码/输出样式 ----------
+\lstdefinestyle{shell}{
+  language=bash, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, keywordstyle=\color{expone!70!black},
+  commentstyle=\color{green!50!black}, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true,
+  numbers=left, numberstyle=\tiny\color{gray}
+}
+\lstdefinestyle{output}{
+  language={}, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true
+}
+
+\hypersetup{colorlinks=true, linkcolor=expfour!70!black, urlcolor=blue!60!black}
+\captionsetup{font=small, labelfont=bf}
+
+\begin{document}
+
+% ================= 标题区 =================
+\begin{center}
+  {\LARGE\bfseries 系统开发工具基础}\\[2pt]
+  {\Large 第 3 周课后实验报告}\\[14pt]
+  {\large 姓名：彭俊皓\qquad 学号：25020007100}\\[4pt]
+  {\large 2026 年 9 月 13 日}\\[4pt]
+  {\large 仓库：\url{https://github.com/pjh456/sys-devtool/}}\\[10pt]
+  \begin{tcolorbox}[enhanced, colback=expone!6, colframe=expone!60!black,
+    arc=2pt, boxrule=0.6pt, width=0.92\textwidth, center upper]
+    \small 本报告覆盖第 3 周课堂四道实验（\texttt{week3/q09}--\texttt{q12}）的
+    操作过程与结果，以及 missing-semester 三部分课后练习：《命令行环境》的任务控制
+    与别名（\texttt{homework/command-line/signal}、\texttt{aliases}）、《Shell 工具和脚本》
+    的最近修改文件（\texttt{homework/command-line/file}），以及《命令行环境》的
+    配置文件项目 dotfiles（\texttt{homework/command-line/aliases/3-8}，以 CI 作为
+    新系统安装验证依据）；全部结果均在本机重新执行验证。
+  \end{tcolorbox}
+\end{center}
+
+\vspace{0.4em}
+\begin{table}[htbp]
+  \centering
+  \caption{第 3 周课后实验完成情况}
+  \label{tab:overview}
+  \begin{tabular}{llll}
+    \toprule
+    部分 & 内容 & 关键工具 & 状态 \\
+    \midrule
+    一 & 课堂实验回顾（q09--q12） & build、venv、pytest、pdb、torch & \textcolor{expone}{\faCheckCircle\ 完成} \\
+    二 & 课后：《命令行环境》任务控制与别名 & jobs、pgrep、pkill、alias & \textcolor{exptwo}{\faCheckCircle\ 完成} \\
+    三 & 课后：《Shell 工具和脚本》最近修改文件 & find、sort、head、cut & \textcolor{expthree}{\faCheckCircle\ 完成} \\
+    四 & 课后：《命令行环境》配置文件（dotfiles） & git、install.sh、GitHub Actions & \textcolor{expfour}{\faCheckCircle\ 完成} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ================= 第一部分：课堂实验回顾 =================
+\partbanner{expone}{一}{课堂实验回顾（q09--q12）}
+
+\hwbanner{expone}{q09}{从源码构建并在干净环境安装 Wheel}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 创建 \texttt{src/greetlab/\_\_init\_\_.py}、给定的 \texttt{cli.py} 与
+        \texttt{pyproject.toml}，并把“学号”替换为自己的学号；
+  \item 在已安装 build 工具的课程环境中运行 \texttt{python -m build} 生成 wheel；
+  \item 新建一个干净虚拟环境，只从生成的 wheel 安装；
+  \item 切换到 \texttt{q09} 之外运行 \texttt{sdt-greet --name <学号>}，确认输出正确。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faTerminal\ 操作过程}
+\begin{lstlisting}[style=shell]
+.venv/bin/python -m build          # 生成 sdist 与 wheel
+# ... Successfully built greetlab_25020007100-0.1.0.tar.gz and
+#     greetlab_25020007100-0.1.0-py3-none-any.whl
+python3 -m venv /tmp/opencode/q09-clean-venv     # 干净虚拟环境
+/tmp/opencode/q09-clean-venv/bin/pip install --no-index \
+  dist/greetlab_25020007100-0.1.0-py3-none-any.whl   # 只装本地 wheel
+cd /tmp/opencode                                 # 切到 q09 之外
+/tmp/opencode/q09-clean-venv/bin/sdt-greet --name 25020007100
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ /tmp/opencode/q09-clean-venv/bin/pip install --no-index ...
+Successfully installed greetlab-25020007100-0.1.0
+$ cd /tmp/opencode && .../sdt-greet --name 25020007100
+Hello, 25020007100!
+$ .../python -c "import greetlab.cli as c; print(c.__file__)"
+/tmp/opencode/q09-clean-venv/lib/python3.14/site-packages/greetlab/cli.py
+\end{lstlisting}
+wheel 内含 \texttt{greetlab} 包的 \texttt{\_\_init\_\_.py}、\texttt{cli.py}
+与 \texttt{dist-info} 元数据。\texttt{greetlab.cli} 解析到干净 venv 的
+\texttt{site-packages}（而非 \texttt{src/}），证明是“只从 wheel 安装”而非
+editable 安装。
+\end{resbox}
+\begin{trapbox}{expone}
+  \texttt{pip install --no-index} 禁止联网，确保依赖只能来自本地 wheel；
+  构建产物 \texttt{dist/} 与虚拟环境均在 \texttt{.gitignore} 中，不入库。
+  初次提交漏了 \texttt{\_\_init\_\_.py}：缺它时 setuptools 把 \texttt{greetlab}
+  当命名空间包（\texttt{greetlab.\_\_file\_\_} 为 \texttt{None}），虽能运行却不满足
+  题目“创建 \texttt{\_\_init\_\_.py}”；补齐后 wheel 才真正包含该文件。
+  另外，开发用的 \texttt{.venv} 是 editable 安装，\texttt{import} 指回 \texttt{src/}，
+  不能作为“装了 wheel”的依据，必须另建独立 venv 验证。
+\end{trapbox}
+
+\hwbanner{expone}{q10}{让编程智能体进入可验证的修复循环}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 复制 \texttt{q09} 为 \texttt{q10}，添加一个失败测试：\texttt{name} 全为空白
+        字符时，\texttt{main} 应以 \texttt{SystemExit(2)} 退出；
+  \item 先运行测试确认失败，再向智能体说明目标、约束和测试命令，要求它修改实现并运行测试；
+  \item 人工检查 diff，撤销无关修改，并再次运行测试；
+  \item 在 \texttt{ai\_log.md} 中用不超过 5 行记录核心提示、智能体改动和人工验证。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faCode\ 失败测试（\texttt{q10/tests/test\_cli.py}）}
+\begin{lstlisting}[style=shell]
+import pytest
+from greetlab.cli import main
+
+def test_blank_name(monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["sdt-greet", "--name", "   "])
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 2
+\end{lstlisting}
+\sublabel{expone}{\faCode\ 智能体改动（\texttt{src/greetlab/cli.py}，仅 +2 行）}
+\begin{lstlisting}[style=shell]
+     a = p.parse_args()
++    if not a.name.strip():
++        p.error("argument --name: value must not be blank")
+     print(f"Hello, {a.name}!")
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ .venv/bin/python -m pytest tests -q
+1 passed in 0.01s
+
+$ .venv/bin/sdt-greet --name " "
+usage: sdt-greet [-h] --name NAME
+sdt-greet: error: argument --name: value must not be blank
+$ echo $?
+2
+$ .venv/bin/sdt-greet --name alice
+Hello, alice!
+\end{lstlisting}
+\texttt{ai\_log.md}（3 行）：核心提示要求 \texttt{--name} 全空白时以
+\texttt{SystemExit(2)} 退出并用仓库虚拟环境跑 pytest；智能体只改 \texttt{cli.py}
+2 行；人工审查 diff 无无关修改后复跑通过。
+\end{resbox}
+\begin{trapbox}{expone}
+  \texttt{argparse} 的 \texttt{p.error()} 会向 stderr 打印用法错误并以
+  \texttt{SystemExit(2)} 退出，与参数解析错误保持一致；
+  “先红后绿”是智能体修复循环的关键——先在未修改的实现上跑出失败，
+  再让智能体改到测试通过，最后人工复核 diff，避免它顺手改动无关文件。
+\end{trapbox}
+
+\hwbanner{expone}{q11}{把“无法处理”的协作材料改成可执行信息}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 重写 Issue：包含环境、复现命令、期望结果和实际结果，未知信息写“待确认”；
+  \item 重写提交信息：标题使用祈使语气，正文说明问题和解决方案；
+  \item 重写评审意见：指出具体行为、风险和建议动作，并标注
+        Blocking / Suggestion / Nit；
+  \item 全文控制在 400 字以内，保持专业、简洁。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faCode\ 改写结果（\texttt{q11/communication.md}）}
+\begin{lstlisting}[style=output]
+# Issue
+- 环境：Linux，Python 3.12，greetlab 0.1.0（Windows 影响待确认）
+- 复现命令：`sdt-greet --name " "`
+- 期望结果：报告 --name 用法错误，退出码 2
+- 实际结果：输出 `Hello,  !`，退出码 0
+- 备注：原 Issue “Windows 上运行不了” 无复现记录，待确认
+
+# 提交信息
+fix: 拒绝仅含空白字符的 --name 值
+problem: 纯空白姓名被当作合法输入，正常打印问候且退出码 0，调用方无法发现错误。
+solution: 解析后用 strip() 校验，空白时以 p.error() 报错并退出 2。
+
+# 评审意见
+[Blocking]
+- 行为：name 全为空白时 main 仍打印问候语并以 0 退出
+- 风险：上游依赖退出码判断输入合法性，空白姓名会被静默接受
+- 建议：增加空白校验并以 2 退出，并补充回归测试
+\end{lstlisting}
+\begin{resbox}{expone}
+  改写后非空白字符 363 字 $<$ 400；Issue 补齐了环境、复现、期望、实际四要素，
+  无法核实的 Windows 影响标注为“待确认”；提交信息标题为祈使句，正文分
+  problem / solution；评审意见按“行为—风险—建议”组织并标注 \texttt{[Blocking]}。
+\end{resbox}
+\begin{trapbox}{expone}
+  协作材料的价值在于“可执行”：Issue 必须能被他人照着复现，所以把已知事实
+  （命令、退出码、实际输出）写全，未知信息显式标“待确认”，而不是含糊描述。
+\end{trapbox}
+
+\hwbanner{expone}{q12}{修复一个可复现的线性回归训练循环}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 补全训练循环，正确调用 \texttt{zero\_grad}、\texttt{backward} 和 \texttt{step}；
+  \item 训练后调用 \texttt{model.eval()}，并在 \texttt{torch.no\_grad()} 中计算最终损失；
+  \item 打印最终损失、weight 和 bias；最终损失应小于 $0.001$；
+  \item 不得直接把 weight 和 bias 赋值为 3 和 $-1$。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faCode\ 补全后的关键片段（\texttt{q12/train.py}）}
+\begin{lstlisting}[style=shell]
+for _ in range(200):
+    pred = model(x)
+    loss = loss_fn(pred, y)
+    opt.zero_grad()          # 清空梯度
+    loss.backward()          # 反向传播
+    opt.step()               # 更新参数
+
+model.eval()                 # 评估模式
+with torch.no_grad():        # 关闭梯度记录
+    final_loss = loss_fn(model(x), y)
+    print(f"final loss: {final_loss.item():.6f}")
+    print(f"weight: {model.weight.item():.6f}")
+    print(f"bias: {model.bias.item():.6f}")
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ .venv/bin/python train.py
+final loss: 0.000000
+weight: 2.999997
+bias: -1.000000
+\end{lstlisting}
+最终损失约 $0$（$<0.001$），weight $\approx 3$、bias $\approx -1$，
+与真实关系 $y = 3x - 1$ 吻合，且这两个值由训练得到、未手工赋值。
+\end{resbox}
+\begin{trapbox}{expone}
+  三步顺序固定：先 \texttt{zero\_grad()} 清掉上一轮梯度，再
+  \texttt{backward()} 反传求导，最后 \texttt{step()} 更新参数；
+  评估阶段用 \texttt{model.eval()} 切换模式并在 \texttt{no\_grad()} 下计算，
+  避免多余的计算图与梯度开销。
+\end{trapbox}
+
+% ================= 第二部分：任务控制与别名 =================
+\partbanner{exptwo}{二}{课后练习：missing-semester《命令行环境》—— 任务控制与别名}
+
+\hwbanner{exptwo}{任务控制 · 1}{用 pgrep/pkill 结束进程而无须手抄 PID}
+\begin{reqbox}{exptwo}
+  在终端执行 \texttt{sleep 10000}，用 Ctrl-Z 切到后台并用 \texttt{bg} 继续运行；
+  再用 \texttt{pgrep} 查找其 pid、用 \texttt{pkill} 结束进程，全程不手动输入 pid。
+  （提示：使用 \texttt{-af} 标记）
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{signal/1.sh}）}
+\begin{lstlisting}[style=shell]
+#!/bin/sh
+set -euo pipefail
+set -m
+
+sleep 10000 &
+SLEEP_PID=$!
+
+sleep 0.5
+kill -TSTP $SLEEP_PID     # SIGTSTP，等价于 Ctrl-Z
+sleep 0.5
+
+bg
+pgrep -af "sleep 10000"
+pkill -f "sleep 10000"
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh signal/1.sh
+[1] sleep 10000 &
+2297212 sleep 10000
+\end{lstlisting}
+\texttt{pgrep -af} 输出 \texttt{PID + 完整命令行}；\texttt{pkill -f} 按同一模式
+结束该进程，过程中没有出现手工抄写的 PID，脚本退出码为 0。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{kill -TSTP} 发出终端停止信号（等价于 Ctrl-Z），配合
+  \texttt{set -m}（开启作业控制）与 \texttt{bg} 让任务转到后台继续；
+  \texttt{pgrep -af} / \texttt{pkill -f} 匹配整条命令行，
+  比只匹配进程名更适合 \texttt{sleep 10000} 这类“进程名相同、参数不同”的场景。
+\end{trapbox}
+
+\hwbanner{exptwo}{任务控制 · 2}{pidwait：等待任意进程结束}
+\begin{reqbox}{exptwo}
+  \texttt{wait} 只能等待子进程，换个会话就失效。编写 bash 函数
+  \texttt{pidwait}：接受一个 pid 作为参数，一直等待直到该进程结束；
+  用 \texttt{sleep} 避免浪费 CPU。
+  （提示：\texttt{kill -0} 不发送信号，但进程不存在时返回非 0）
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{signal/2.sh}）}
+\begin{lstlisting}[style=shell]
+pidwait() {
+	if [ $# -lt 1 ]; then
+		echo "Usage: pidwait <pid>" >&2
+		return 1
+	fi
+
+	local PID=$1
+	while kill -0 $PID 2>/dev/null; do
+		sleep 1
+	done
+}
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ source signal/2.sh
+$ sleep 3 & p=$!
+$ date +%T; pidwait $p; date +%T
+16:58:36
+16:58:39
+\end{lstlisting}
+\texttt{pidwait} 在 \texttt{sleep 3} 结束后立即返回，时间差约 3 秒。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{kill -0} 只做存在性探测、不真正发信号：进程在返回 0，进程不存在返回非 0，
+  因此可用作循环条件；每轮 \texttt{sleep 1} 轮询，避免忙等占满 CPU。
+  函数以 \texttt{source} 载入当前 shell 后才可用。
+\end{trapbox}
+
+\hwbanner{exptwo}{别名 · 1}{把误输入的 \texttt{dc} 变成 \texttt{cd}}
+\begin{reqbox}{exptwo}
+  创建一个 \texttt{dc} 别名，其功能是当我们把 \texttt{cd} 错误输入成 \texttt{dc}
+  时也能正确执行。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{aliases/1.sh}）}
+\begin{lstlisting}[style=shell]
+alias dc=cd
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ source aliases/1.sh
+$ alias dc
+alias dc='cd'
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{exptwo}
+  别名在交互式 shell 中才生效，且默认不持久；要长期可用需写入启动文件
+  （如 \texttt{\~/.bashrc}）并重新加载。演示脚本须 \texttt{source} 进当前 shell。
+\end{trapbox}
+
+\hwbanner{exptwo}{别名 · 2}{统计最常用命令并建立别名}
+\begin{reqbox}{exptwo}
+  执行讲义给出的 \texttt{history} 统计管道（见下），获取最常用的十条命令，
+  并尝试为它们创建别名。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{aliases/2.sh}）}
+\begin{lstlisting}[style=shell]
+history | awk '{$1="";print substr($0,2)}' | sort | uniq -c | sort -n | tail -n 10
+
+alias ll='ls -lah'
+alias la='ls -A'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gd='git diff'
+alias grep='rg --color=auto'
+alias cat='bat --paging=never'
+alias py='python3'
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ source aliases/2.sh
+$ alias | grep -E '^(alias (ll|la|gs|ga|gc|gp|gd|grep|cat|py))'
+alias cat='bat --paging=never'
+alias ga='git add'
+alias gc='git commit'
+alias gd='git diff'
+alias gp='git push'
+alias grep='rg --color=auto'
+alias gs='git status'
+alias la='ls -A'
+alias ll='ls -lah'
+alias py='python3'
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{history} 是交互式 shell 的内建命令；实际高频命令
+  （\texttt{git}、\texttt{ls}、\texttt{grep} 等）按日常使用整理成上述别名。
+  计数前必须先 \texttt{sort}，因为 \texttt{uniq -c} 只统计相邻的重复行。
+\end{trapbox}
+
+% ================= 第三部分：最近修改的文件 =================
+\partbanner{expthree}{三}{课后练习：missing-semester《Shell 工具和脚本》—— 最近修改的文件}
+
+\hwbanner{expthree}{文件 · 1}{递归查找最近修改的一个文件}
+\begin{reqbox}{expthree}
+  编写一个命令或脚本，递归地查找文件夹中最近修改的文件。
+  （提示：组合 \texttt{find}、\texttt{sort}、\texttt{head}，并留意文件名中的空格）
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 解答（\texttt{file/1.sh}）}
+\begin{lstlisting}[style=shell]
+#!/bin/sh
+if [ $# -lt 1 ]; then
+	echo "Directory is required!" >&2
+	exit 1
+fi
+FP=$1
+if [ ! -e $FP ]; then
+	echo "Directory is missing!" >&2
+	exit 1
+fi
+find $FP -type f -printf '%T@ %p\0' | sort -rnz | head -z -n 1 | cut -z -d' ' -f2-
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ sh file/1.sh homework/course-shell
+homework/course-shell/18/check_command.sh
+\end{lstlisting}
+输出为 \texttt{course-shell} 下 mtime 最新的文件，路径完整、无附加时间戳。
+\end{resbox}
+\begin{trapbox}{expthree}
+  \texttt{find -printf '\%T@ \%p\textbackslash0'} 以 NUL 分隔输出“mtime 时间戳 + 路径”；
+  \texttt{sort -rnz} 按时间戳倒序（\texttt{-z} 以 NUL 分列），
+  \texttt{head -z -n1} 取第一个，\texttt{cut -z -d' ' -f2-} 去掉时间戳只留路径。
+  全程 NUL 分隔，文件名含空格或换行都不会错位。
+\end{trapbox}
+
+\hwbanner{expthree}{文件 · 2}{按修改时间列出全部文件}
+\begin{reqbox}{expthree}
+  更通用的做法：按最近的修改时间列出文件夹中的文件（可以截断为若干条）。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 解答（\texttt{file/2.sh}）}
+\begin{lstlisting}[style=shell]
+# 前置校验同 file/1.sh
+find $FP -type f -printf '%T@ %p\0' | sort -rnz | cut -z -d' ' -f2- | tr '\0' '\n'
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ sh file/2.sh homework/course-shell | head -3
+homework/course-shell/18/check_command.sh
+homework/course-shell/18/explain.txt
+homework/course-shell/17.sh
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{expthree}
+  与题 1 同源，只是去掉了 \texttt{head -z -n1}，得到按 mtime 倒序的全量列表；
+  末尾 \texttt{tr '\textbackslash0' '\textbackslash n'} 把 NUL 分隔转回换行，便于逐行阅读。
+\end{trapbox}
+
+% ================= 第四部分：配置文件（dotfiles） =================
+\partbanner{expfour}{四}{课后练习：《命令行环境》配置文件（dotfiles）与 CI 验证}
+
+\hwbanner{expfour}{配置文件 · 1--6}{dotfiles 项目：版本控制、安装脚本与新系统验证}
+\begin{reqbox}{expfour}
+\begin{enumerate}[leftmargin=1.6em, itemsep=1pt]
+  \item 为配置文件新建一个文件夹，并设置好版本控制；
+  \item 在其中添加至少一个配置文件（如 shell），包含一些自定义设置；
+  \item 建立一种在新设备快速安装配置的方法（如 \texttt{ln -s} 或专用工具）；
+  \item 在新的虚拟机上测试该安装脚本；
+  \item 将现有配置文件移入项目仓库；
+  \item 将项目发布到 GitHub。
+\end{enumerate}
+\end{reqbox}
+\sublabel{expfour}{\faCode\ 解答（submodule \texttt{aliases/3-8}）}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item \textbf{版本控制与发布}：项目以独立 Git 仓库管理，发布在
+        \href{https://github.com/pjh456/dotfiles}{\texttt{pjh456/dotfiles}}，
+        并以 submodule 形式挂到本仓库 \texttt{aliases/3-8}；
+  \item \textbf{配置文件}：\texttt{etc/} 下含 \texttt{.bashrc}、\texttt{.bash\_profile}
+        及 Hyprland 桌面的 \texttt{hypr}、\texttt{waybar}、\texttt{swaync}、
+        \texttt{systemd/user} 等配置；
+  \item \textbf{安装脚本}：\texttt{install.sh} 把 \texttt{etc/} 部署到
+        \texttt{\$HOME} 并先备份原件，支持 \texttt{--packages}、
+        \texttt{--restore} 等选项，且幂等（重复运行安全）。
+\end{itemize}
+\begin{resbox}{expfour}
+  “在新系统测试安装脚本”由 GitHub Actions 在\textbf{全新环境}中实测：
+  \begin{lstlisting}[style=output]
+arch-install     success  1m37s   # archlinux 容器里真实 ./install.sh --packages
+debian-install   success  2m1s    # debian:testing 容器里真实安装
+install-dry-run  success  5s      # 全新 HOME 上验证部署/备份/幂等/--restore
+shellcheck       success  15s     # 脚本静态检查
+json             success  3s      # waybar/swaync JSON 校验
+\end{lstlisting}
+  当前 HEAD（\texttt{f6e0156}）CI 全绿，run 链接如下。
+  \begin{center}
+  \url{https://github.com/pjh456/dotfiles/actions/runs/34182687378}
+  \end{center}
+  \texttt{ubuntu-latest} runner 每次都是一台全新 VM，Arch/Debian job 又在其上起
+  干净的官方容器，因此可复现地充当“新虚拟机测试安装脚本”的依据。
+\end{resbox}
+\begin{trapbox}{expfour}
+  \texttt{install.sh} 采用“复制 + 部署清单 + 备份”而非单纯 \texttt{ln -s}，
+  便于 \texttt{--restore} 回滚；CI 用真实的 \texttt{install.sh --packages}
+  （而非模拟）覆盖 Arch 与 Debian 两种发行版。局限：CI 只验证安装/部署逻辑，
+  不在容器中启动 Hyprland/waybar 等桌面会话，GUI 运行时行为未覆盖。
+\end{trapbox}
+
+% ================= 总结 =================
+\partbanner{expone}{五}{总结与收获}
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{课堂实验（q09--q12）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item 打包的最小闭环是“源码 + \texttt{pyproject.toml} $\rightarrow$
+          \texttt{python -m build} $\rightarrow$ 干净 venv 只装 wheel $\rightarrow$
+          换目录运行”；缺 \texttt{\_\_init\_\_.py} 会退化成命名空间包，
+          editable 安装不能代替 wheel 安装来验证。
+    \item 智能体修复要“先红后绿 + 人工复核 diff”，把测试命令作为约束交给它。
+    \item 协作材料要写成可执行信息：Issue 可复现、提交信息分问题/方案、
+          评审标注严重级别。
+    \item PyTorch 训练循环顺序为 \texttt{zero\_grad}、\texttt{backward}、\texttt{step}，
+          评估用 \texttt{eval()} 搭配 \texttt{no\_grad()}。
+  \end{itemize}
+  \item \textbf{课后练习（missing-semester）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item 作业控制：Ctrl-Z 发 \texttt{SIGTSTP}，\texttt{bg} 转后台，
+          \texttt{pgrep -af}/\texttt{pkill -f} 按命令行定位进程；
+          \texttt{kill -0} 可做进程存在性探测，用来实现 \texttt{pidwait}。
+    \item 别名默认不持久，需写入启动文件；\texttt{uniq -c} 前必须 \texttt{sort}。
+    \item 用 \texttt{find -printf '\%T@ \%p\textbackslash0'} 搭配
+          \texttt{sort -z}/\texttt{cut -z} 可按 mtime 排序，且安全处理含空格文件名。
+    \item 配置文件项目用“复制 + 备份 + 清单”的 \texttt{install.sh} 管理，
+          Git + CI（真实 \texttt{install --packages}）构成可复现的安装验证链。
+  \end{itemize}
+\end{itemize}
+
+\end{document}
