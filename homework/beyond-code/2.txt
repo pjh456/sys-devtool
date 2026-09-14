@@ -1,0 +1,35 @@
+练习 2：好提交信息 vs 弱提交信息，以及一次重写
+
+好例子（LMCache-Ascend，我贡献的 PR #289 / #288 里的提交）
+  3091f21  fix(c_ops): add missing <stdexcept> include in mem_alloc.cpp
+           正文：std::runtime_error 被使用，但 <stdexcept> 一直靠传递性
+           include 引入；GCC 13.3 / 新版 libstdc++ 不再提供，编译报
+           'runtime_error' is not a member of 'std'。
+    → 标题说“改了什么”，正文说“为什么必须改”：传递性 include 在 GCC 13 失效。
+  fe407e0  fix(hixl): add pkg_inc include path for CANN 9.x
+           正文：头文件迁移到 aarch64-linux/pkg_inc/runtime，新增 -I 在旧
+           CANN（8.5）上无害。
+    → 读者立刻知道动机和兼容性边界（对旧版本无影响）。
+
+弱例子（NovaShen555/WeatherViewer，PR #3 里的历史提交）
+  241eebfa  补一下                     正文：忘记传templates了好像
+  7b9ee325  修了一下extends继承        正文：把tmp模板修好了
+    → 标题只记录“当时操作/做了什么”，没有“为什么改、影响是什么”；
+      “补一下”“修了一下”事后无法判断动机和范围。
+
+重写 241eebfa（依据 diff 反推背景）
+  diff：一次性补传 templates/ 下 11 个模板（bulletin.html、home.html、
+  toolmap.html、view_weather.html 等，含大量重排），6000+ 行变更。
+
+  改写后的提交信息（问题 → 方案 → 影响）：
+    fix(templates): 补传遗漏的页面模板，恢复页面渲染
+
+    问题：上一次提交只更新了视图，漏提交 templates/ 下页面模板，部署后
+    对应页面会因找不到模板而无法渲染。
+    方案：补传 bulletin.html、home.html、toolmap.html 等 11 个模板，并
+    同步更新 view_weather.html 等引用。
+    影响：页面恢复渲染；本次变更含大段重排，需回归验证首页、气象公报、
+    天气地图三类页面的渲染与静态资源路径。
+
+体会：才过了几个月，除了 diff 本身，几乎无法还原“当时为什么漏传、这些
+改动是否相互依赖”。事后补背景的成本远高于当时多写两行正文。
