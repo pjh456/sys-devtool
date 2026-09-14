@@ -1,0 +1,19 @@
+git stash：把未提交的改动先收起来
+
+命令：
+    git stash
+    git log --all --oneline
+    git stash list
+    git stash pop
+
+观察结果：
+  1. 修改 note.txt 后 git status 显示 " M note.txt"；执行 git stash 后工作区恢复干净，
+     文件内容回到 HEAD 状态。
+  2. git log --all --oneline 中多出两条提交（stash 保存在 refs/stash 上）：
+         4e39d44 WIP on master: 6a99921 add note.txt
+         ac87543 index on master: 6a99921 add note.txt
+     git stash list 显示：stash@{0}: WIP on master: 6a99921 add note.txt
+  3. git stash pop 重新应用改动，并把该条从 stash 栈中删除。
+
+适用场景：改到一半临时要切分支、拉取远端或修别处 bug，先把未完成改动 stash
+起来保持工作区干净，处理完再 pop 回来。
