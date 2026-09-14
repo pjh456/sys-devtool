@@ -4,3 +4,6 @@
 [submodule "homework/command-line/aliases/3-8"]
 	path = homework/command-line/aliases/3-8
 	url = https://github.com/pjh456/dotfiles
+[submodule "homework/version-control/pjh_platform"]
+	path = homework/version-control/pjh_platform
+	url = https://github.com/pjh456/pjh_platform.git
