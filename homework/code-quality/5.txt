@@ -1,0 +1,19 @@
+练习 5：用编辑器正则把讲义里的 Markdown 无序列表标记 - 替换为 *
+
+不能直接把所有 "-" 字符替换成 "*"：讲义里 "-" 还出现在链接锚点
+（如 #continuous-integration、#pre-commit-hooks）、代码块和正文中。
+
+只匹配行首的项目符号（可有缩进，"-" 后必须跟一个空格）：
+    Vim:      :%s/\v^(\s*)- /\1* /g
+    VS Code:  查找  ^(\s*)-       替换  $1* 
+    sed -E:   sed -E 's/^([[:space:]]*)- /\1* /'
+
+要点：
+  - ^(\s*) 把行首缩进捕获下来，替换时回填（\1 / $1），嵌套列表也能保持缩进；
+  - 要求 "-" 后跟一个空格，避免误伤 "#anchor"、"--flag"、"a-b" 等；
+  - 行内其它位置的 "-" 一律不动。
+
+效果（讲义 _2026/code-quality.md 共 28 个行首项目符号，全部替换）：
+    - [Formatting](#formatting)   ->   * [Formatting](#formatting)
+    - [Linting](#linting)         ->   * [Linting](#linting)
+    - [Testing](#testing)         ->   * [Testing](#testing)
