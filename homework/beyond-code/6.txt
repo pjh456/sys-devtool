@@ -1,0 +1,35 @@
+练习 6：读懂一次真实 PR 评审（LMCache-Ascend #289）
+
+PR：fix(c_ops): add missing <stdexcept> include in mem_alloc.cpp（已合并）
+
+评审线程（按时间顺序）：
+  1. chloroethylene（评审人，普通评论）
+     “LGTM — confirmed the bug is real 👍”
+     并逐层验证了根因：mem_alloc.cpp 有 9 处抛 std::runtime_error 却没有
+     <stdexcept>，此前靠 managed_mem.h → shared_mutex → bits/std_mutex.h
+     → <system_error> 传递引入；GCC 13 把 <system_error> 从
+     bits/std_mutex.h 移除，于是编译失败。
+     建议：csrc/pybind.cpp 存在同样潜在问题，可顺手一起修或另开 PR；
+     结尾明确 “either way this one is ready to merge”（即这条不是阻断项）。
+  2. pjh456（作者）
+     回复已在 73c3da7 一并修复 pybind.cpp / common/exception.h 及两个
+     mindspore 源文件。
+  3. chloroethylene：“fix lint plz”
+  4. pjh456：说明 1736ffc 修好了 clang-format 的 include 排序，CI 应能通过。
+  5. matthewygf：APPROVED，“LGTM ! Thanks for the contribution.”
+
+效率评估：
+  - 评论 1 质量高：不只 LGTM，还给出一条可复现的因果链，并把“建议”
+    与“是否阻断”分得很清楚（suggestion，且明确当前 PR 可直接合）。既
+    省去作者来回确认，又给出可操作的下一步（顺手修 pybind.cpp）。
+  - 评论 3 “fix lint plz” 是必要的阻断项，但信息量偏低：没说是
+    clang-format 失败、哪个文件、哪条规则，作者得自己翻 CI 日志才知道
+    是 include 排序。更高效的写法：“clang-format 未通过：pybind.cpp 的
+    <stdexcept> 需按字母序排在 <pybind11/stl.h> 之后”。
+  - 作者的回复都到位：指明修复用的 commit、覆盖了哪些文件、如何验证。
+
+作为 PR 作者的体验：
+  整体正面。评审人先确认 bug 真实、给出根因，再提“顺手修”的建议，并
+  明确不阻断合并；唯一阻断意见措辞简短但意图清楚。相比只有“LGTM”或
+  泛泛而谈的评审，这种“验证 + 可操作 + 分级（阻断/建议）”的反馈让
+  作者知道该做什么、不必猜，也更愿意继续贡献。
