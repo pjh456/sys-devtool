@@ -8,4 +8,4 @@ def main():
     a = p.parse_args()
     if not a.name.strip():
         p.error("argument --name: value must not be blank")
-    print("Hello, name!")
+    print(f"Hello, {a.name}!")
