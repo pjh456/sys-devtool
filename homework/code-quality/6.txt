@@ -1,0 +1,22 @@
+练习 6：用正则从 JSON 中捕获 name
+
+目标串：
+    {"name": "Alyssa P. Hacker", "college": "MIT"}
+
+第一次尝试（.+ 贪婪）：
+    "name"\s*:\s*"(.+)"
+结果抽出了 "Alyssa P. Hacker", "college": "MIT" 一整段——.+ 会一直吃到
+行尾最后一个引号。
+
+改为排除引号的非贪婪写法：
+    "name"\s*:\s*"([^"]*)"
+结果：Alyssa P. Hacker
+
+6.1 name 中出现转义的 \" 时，[^"]* 会在 \" 处提前停下。用“非引号非反斜杠
+字符，或反斜杠加任意字符”的组合跳过转义：
+    "name"\s*:\s*"((?:[^"\\]|\\.)*)"
+对 {"name": "Alyssa \"P.\" Hacker", ...} 抽到 Alyssa \"P.\" Hacker。
+
+6.2 正则解析 JSON 不安全，实践中用解析器（见 6.py，一行搞定）：
+    echo '{"name": "Alyssa P. Hacker", "college": "MIT"}' | python3 6.py
+    Alyssa P. Hacker
