@@ -1,0 +1,37 @@
+练习 3：为 pjh_platform 接入 clang-format 格式门禁
+
+pjh_platform 原本已有 CI（.github/workflows/ci.yml）：Linux GCC / Clang /
+ASan+UBSan、macOS、Windows MSVC、CMake 3.20 共 6 档矩阵，跑 configure →
+build → ctest；但没有任何格式化/静态检查，尽管仓库里已有 .clang-format。
+
+改动：
+  1. 用 clang-format 22.1.8 规整唯一不符合的文件 tests/test_encoding.cpp
+     （相邻字符串字面量断行），使全量 55 个 C/C++ 文件通过检查；
+  2. 在 ci.yml 新增 format job：
+         format:
+           name: clang-format
+           runs-on: ubuntu-latest
+           steps:
+             - uses: actions/checkout@v4
+               with: { fetch-depth: 1 }
+             - run: pipx install clang-format==22.1.8
+             - run: clang-format --dry-run --Werror $(git ls-files '*.cpp' '*.hpp' '*.h')
+
+本地复现 CI 的检查命令（等价于 format job 的 Check formatting 步骤）：
+  $ files=$(git ls-files '*.cpp' '*.hpp' '*.h')
+  $ clang-format --dry-run --Werror $files
+  （无输出，exit 0）
+
+  # 故意把 src/clock.cpp 改坏，模拟“引入格式违规”：
+  $ printf '\nint     broken   =1;\n' >> src/clock.cpp
+  $ clang-format --dry-run --Werror src/clock.cpp
+  src/clock.cpp:107:4: error: code should be clang-formatted [-Wclang-format-violations]
+  exit=1                 # CI 会在 format job 上失败，从而拦下这次 push
+  $ 还原后复验：exit 0
+
+对应提交（pjh_platform 仓库，submodule）：
+  1a9a2dd style: clang-format 规整 test_encoding.cpp 字符串字面量断行
+  a673e08 ci: 添加 clang-format 格式检查门禁
+
+说明：题目要求的“format / lint / test”中，build+test 已由原 test 矩阵覆盖，
+本次接入 format；lint 若要用 clang-tidy 需先加 .clang-tidy 规则集，可作为后续。
