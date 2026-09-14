@@ -1,0 +1,30 @@
+练习 4：用 grep 正则查找 subprocess.Popen(..., shell=True)
+
+正则（PCRE，grep -P）：
+    subprocess\.Popen\([^)]*shell\s*=\s*True
+
+对 popen_samples.py 的 grep 结果：
+    ./popen_samples.py:3:  subprocess.Popen(cmd, shell=True)
+    ./popen_samples.py:8:  subprocess.Popen(cmd, shell = True)
+    ./popen_samples.py:9:  subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    ./popen_samples.py:12: # 注释里的 ...（误报）
+    ./popen_samples.py:13: text = "..."（误报）
+    ./4.sh:2:              # 自己的注释（误报）
+
+问题：
+  1. 漏报——跨行调用匹配不到。第 4-7 行
+         subprocess.Popen(
+             cmd,
+             shell=True,
+         )
+     因为 [^)]* 不匹配换行，正则在该行内找不到 shell=True。
+  2. 误报——注释和字符串里的字面量也会被算进来。
+  3. 参数里再嵌套括号（如 env=dict(a=1)）时 [^)]* 会在第一个 ) 提前结束。
+
+semgrep（在 AST 上匹配，不受换行/空格/括号影响，也不会命中注释和字符串）：
+    semgrep -l python -e 'subprocess.Popen(..., shell=True, ...)' popen_samples.py
+结果：4 findings（第 3、4-7、8、9 行），跨行那条被正确匹配；第 12、13 行的
+注释/字符串被正确忽略。
+
+结论：grep 正则在“格式规整、语义简单”时够用，但遇到跨行、嵌套括号和
+注释/字符串就失效；这种危险调用检测更适合 semgrep 这类基于 AST 的规则。
