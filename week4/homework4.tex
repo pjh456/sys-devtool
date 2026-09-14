@@ -1,0 +1,714 @@
+% !TEX program = xelatex
+% 系统开发工具基础 · 第 4 周课后实验报告
+% 编译：xelatex homework4.tex（两遍）
+
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
+
+\usepackage{amsmath}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{fontawesome5}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{positioning}
+
+% ---------- 字体 ----------
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+
+% ---------- 配色 ----------
+\definecolor{expone}{RGB}{41, 98, 168}    % 蓝：课堂实验
+\definecolor{exptwo}{RGB}{46, 125, 50}    % 绿：版本控制
+\definecolor{expthree}{RGB}{214, 116, 30}  % 橙：代码质量
+\definecolor{expfour}{RGB}{106, 76, 172}  % 紫：不止于代码
+
+% ---------- 页眉页脚 ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}系统开发工具基础}
+\fancyhead[R]{\small\color{gray}第 4 周课后实验报告}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{gray!50}\hrule width\headwidth height 0.4pt}
+
+% ---------- 自定义盒子 ----------
+\newtcolorbox{reqbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faBook\ 题目要求}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{resbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faCheckCircle\ 结果与验证}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+\newtcolorbox{trapbox}[1]{
+  enhanced, breakable, boxrule=0.8pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  colback=#1!6, colframe=#1!70!black,
+  title={\small\bfseries\color{white}\faLightbulb\ 要点与注意事项}, coltitle=white,
+  colbacktitle=#1!75!black, before skip=0.8em
+}
+
+% 部分横幅
+\newcommand{\partbanner}[3]{%
+  \par\vspace{1.6em}
+  \begin{tcolorbox}[enhanced, colback=#1!10, colframe=#1!85!black,
+    boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+    before skip=1.6em]
+    {\Large\bfseries\color{#1!70!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.2em}\noindent\ignorespaces
+}
+% 小题横幅
+\newcommand{\hwbanner}[3]{%
+  \par\vspace{1.1em}
+  \begin{tcolorbox}[enhanced, colback=#1!8, colframe=#1!75!black,
+    boxrule=0.8pt, arc=2pt, left=7pt, right=7pt, top=4pt, bottom=4pt,
+    before skip=1.1em]
+    {\bfseries\color{#1!75!black}#2\qquad #3}
+  \end{tcolorbox}
+  \par\vspace{0.1em}\noindent\ignorespaces
+}
+% 小节小标题
+\newcommand{\sublabel}[2]{%
+  \par\vspace{0.8em}\noindent{\bfseries\color{#1!75!black}#2}\par\nobreak\vspace{0.25em}\noindent\ignorespaces
+}
+
+% ---------- 代码/输出样式 ----------
+\lstdefinestyle{shell}{
+  language=bash, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, keywordstyle=\color{expone!70!black},
+  commentstyle=\color{green!50!black}, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true,
+  numbers=left, numberstyle=\tiny\color{gray}
+}
+\lstdefinestyle{output}{
+  language={}, backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize, frame=single, rulecolor=\color{gray!45},
+  breaklines=true, showstringspaces=false, columns=fullflexible, keepspaces=true
+}
+
+\hypersetup{colorlinks=true, linkcolor=expfour!70!black, urlcolor=blue!60!black}
+\captionsetup{font=small, labelfont=bf}
+
+\begin{document}
+
+% ================= 标题区 =================
+\begin{center}
+  {\LARGE\bfseries 系统开发工具基础}\\[2pt]
+  {\Large 第 4 周课后实验报告}\\[14pt]
+  {\large 姓名：彭俊皓\qquad 学号：25020007100}\\[4pt]
+  {\large 2026 年 9 月 14 日}\\[4pt]
+  {\large 仓库：\url{https://github.com/pjh456/sys-devtool/}}\\[10pt]
+  \begin{tcolorbox}[enhanced, colback=expone!6, colframe=expone!60!black,
+    arc=2pt, boxrule=0.6pt, width=0.92\textwidth, center upper]
+    \small 本报告覆盖第 4 周课堂四道实验（\texttt{week4/q13}--\texttt{q16}）的
+    操作过程与结果，以及 missing-semester 三讲课后练习：《版本控制》的历史重写、
+    stash、别名与全局 gitignore（\texttt{homework/version-control/}）、
+    《代码质量》的 CI 格式门禁与正则（\texttt{homework/code-quality/}）、
+    《不止于代码》的提交信息与代码评审（\texttt{homework/beyond-code/}）；
+    全部结果均在本机重新执行验证。
+  \end{tcolorbox}
+\end{center}
+
+\vspace{0.4em}
+\begin{table}[htbp]
+  \centering
+  \caption{第 4 周课后实验完成情况}
+  \label{tab:overview}
+  \begin{tabular}{llll}
+    \toprule
+    部分 & 内容 & 关键工具 & 状态 \\
+    \midrule
+    一 & 课堂实验回顾（q13--q16） & ruff、pytest、make、curl、jq & \textcolor{expone}{\faCheckCircle\ 完成} \\
+    二 & 课后：《版本控制》历史重写/stash/别名/gitignore & git-filter-repo、stash、config & \textcolor{exptwo}{\faCheckCircle\ 完成} \\
+    三 & 课后：《代码质量》CI 门禁与正则 & clang-format、GitHub Actions、grep、sed、re & \textcolor{expthree}{\faCheckCircle\ 完成} \\
+    四 & 课后：《不止于代码》提交信息与评审 & git、gh、Markdown & \textcolor{expfour}{\faCheckCircle\ 完成} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ================= 第一部分：课堂实验回顾 =================
+\partbanner{expone}{一}{课堂实验回顾（q13--q16）}
+
+\hwbanner{expone}{q13}{建立可执行的本地质量门禁}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 复制 \texttt{q10} 为 \texttt{q13}，在 \texttt{pyproject.toml} 加入 ruff 与 pytest 的最小配置；
+  \item 补充一个正常姓名测试与一个空白姓名测试，每个测试包含有效断言；
+  \item 运行 \texttt{ruff format}、\texttt{ruff check} 和 \texttt{pytest}，修复全部问题，不得全局忽略规则；
+  \item 编写 \texttt{check.sh}，依次执行 \texttt{ruff format --check}、\texttt{ruff check} 和 \texttt{pytest}，保证返回 0。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faCode\ 质量配置（\texttt{q13/pyproject.toml}）}
+\begin{lstlisting}[style=shell]
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+\end{lstlisting}
+\sublabel{expone}{\faCode\ 测试（\texttt{q13/tests/test\_cli.py}）}
+\begin{lstlisting}[style=shell]
+def test_normal_name(monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["sdt-greet", "--name", "alice"])
+    main()
+    assert capsys.readouterr().out == "Hello, alice!\n"
+
+def test_blank_name(monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["sdt-greet", "--name", "   "])
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 2
+    assert "must not be blank" in capsys.readouterr().err
+\end{lstlisting}
+\sublabel{expone}{\faCode\ 门禁脚本（\texttt{q13/check.sh}）}
+\begin{lstlisting}[style=shell]
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+
+ruff format --check .
+ruff check .
+pytest
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ ./check.sh
+3 files already formatted
+All checks passed!
+tests/test_cli.py ..                                   [100%]
+2 passed in 0.01s
+$ echo $?
+0
+\end{lstlisting}
+三个工具串成一条门禁，任一失败即非零退出（\texttt{set -euo pipefail}）。
+\end{resbox}
+\begin{trapbox}{expone}
+  \texttt{ruff format --check} 只报告不修改，适合 CI；\texttt{pytest} 通过
+  \texttt{pyproject.toml} 的 \texttt{[tool.pytest.ini\_options]} 读取
+  \texttt{pythonpath} 与 \texttt{testpaths}，无需额外命令行参数。
+\end{trapbox}
+
+\hwbanner{expone}{q14}{让 Make 只重建真正受影响的产物}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 创建给定的 \texttt{data.csv}、\texttt{stats.py}、\texttt{build\_report.py} 和 \texttt{report.md}；
+  \item 编写 Makefile，含 \texttt{all}、\texttt{stats.txt}、\texttt{report.txt} 和 \texttt{clean}，
+        准确列出数据、脚本与中间产物依赖，并把 \texttt{all}、\texttt{clean} 声明为 \texttt{.PHONY}；
+  \item 验证首次 \texttt{make} 生成两个产物、第二次无改动不执行配方、
+        \texttt{touch data.csv} 后两个产物重新生成、\texttt{clean} 只删生成物。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faCode\ Makefile（\texttt{q14/Makefile}）}
+\begin{lstlisting}[style=shell]
+.PHONY: all clean
+
+all: stats.txt report.txt
+
+stats.txt: data.csv stats.py
+	python3 stats.py
+
+report.txt: stats.txt report.md build_report.py
+	python3 build_report.py
+
+clean:
+	rm -f stats.txt report.txt
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ make                 # 首次：两个产物都生成
+python3 stats.py
+python3 build_report.py
+$ make                 # 无改动：不执行任何配方
+make: 对"all"无需做任何事。
+$ touch data.csv; make  # 数据变新：两个目标依次重建
+python3 stats.py
+python3 build_report.py
+$ make clean
+rm -f stats.txt report.txt
+\end{lstlisting}
+\texttt{stats.txt} 为 \texttt{10}（$2+3+5$），\texttt{report.txt} 末尾为
+\texttt{Total: 10}。
+\end{resbox}
+\begin{trapbox}{expone}
+  正确性取决于依赖写全：\texttt{stats.txt} 依赖 \texttt{data.csv} 与
+  \texttt{stats.py}，\texttt{report.txt} 依赖 \texttt{stats.txt}、
+  \texttt{report.md} 与 \texttt{build\_report.py}；少写任一依赖都会出现
+  “改了源文件却不重建”。\texttt{all}/\texttt{clean} 不是文件，必须
+  \texttt{.PHONY}，否则同名文件会干扰目标判定。
+\end{trapbox}
+
+\hwbanner{expone}{q15}{把本地 API 数据转换为可读报告}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 保存给定 JSON 为 \texttt{packages.json}，在本目录运行 \texttt{python -m http.server 8000}；
+  \item 使用 \texttt{curl -fsS} 获取 \texttt{http://127.0.0.1:8000/packages.json}；
+  \item 用 \texttt{jq} 筛选 \texttt{status} 为 \texttt{active} 且 \texttt{downloads} 不少于 100 的记录，
+        并按 \texttt{downloads} 降序、\texttt{name} 升序排列；
+  \item 编写 \texttt{api\_report.sh} 生成 \texttt{summary.md}，含标题与三列表格。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faCode\ 报告脚本（\texttt{q15/api\_report.sh}）}
+\begin{lstlisting}[style=shell]
+curl -fsS "$URL" |
+  jq -r '
+    [ .[] | select(.status == "active" and .downloads >= 100) ]
+    | sort_by([-.downloads, .name])
+    | (["# Active Packages Report", "",
+        "| name | version | downloads |",
+        "| --- | --- | --- |"]
+       + [ .[] | "| \(.name) | \(.version) | \(.downloads) |" ])
+    | .[]
+  ' > "$OUT"
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ bash api_report.sh
+$ cat summary.md
+# Active Packages Report
+
+| name | version | downloads |
+| --- | --- | --- |
+| delta | 0.9.0 | 450 |
+| gamma | 1.5.1 | 450 |
+| alpha | 1.2.0 | 120 |
+\end{lstlisting}
+\texttt{beta}（inactive）、\texttt{epsilon}（80）被过滤；\texttt{delta} 与
+\texttt{gamma} 下载量同为 450，按 \texttt{name} 升序把 \texttt{delta} 排在
+\texttt{gamma} 前。
+\end{resbox}
+\begin{trapbox}{expone}
+  \texttt{select} 负责过滤，\texttt{sort\_by([-.downloads, .name])} 用“下载量取负”
+  实现降序、同值再按名称升序；\texttt{curl -fsS} 让 HTTP 错误直接失败，
+  避免把错误页写进报告。
+\end{trapbox}
+
+\hwbanner{expone}{q16}{修复并交付一个陌生的小型工具仓库}
+\begin{reqbox}{expone}
+\begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+  \item 复制 \texttt{q13} 为 \texttt{q16} 并纳入 Git；
+  \item 把问候语临时改成始终返回字面量 \texttt{Hello, name!}，运行 \texttt{check.sh} 确认测试失败，随后定位并修复；
+  \item 编写含 \texttt{check}、\texttt{build}、\texttt{clean} 的最小 Makefile；
+  \item 运行 \texttt{make check} 与 \texttt{make build}，计算 wheel 的 SHA-256，并把最终改动提交为一次聚焦提交。
+\end{itemize}
+\end{reqbox}
+\sublabel{expone}{\faCode\ Makefile 与构建校验（\texttt{q16/}）}
+\begin{lstlisting}[style=shell]
+.PHONY: check build clean
+
+check:
+	./check.sh
+
+build:
+	uv build
+
+clean:
+	rm -rf dist/ src/*.egg-info
+\end{lstlisting}
+\begin{resbox}{expone}
+\begin{lstlisting}[style=output]
+$ make check
+3 files already formatted
+All checks passed!
+2 passed in 0.01s
+$ make build
+Successfully built dist/greetlab_25020007100-0.1.0-py3-none-any.whl
+$ sha256sum dist/*.whl
+2f6a84795591edb841788d44b901222f1ca4b1fdaed8ee37992160997fee4652  dist/...whl
+\end{lstlisting}
+错误版本把 \texttt{print(f"Hello, \{a.name\}!")} 改成字面量
+\texttt{print("Hello, name!")}，\texttt{test\_normal\_name} 随即失败；
+改回后门禁恢复全绿。
+\end{resbox}
+\begin{trapbox}{expone}
+  字面量改动不会让程序崩溃，只是输出错了——正是断言式测试能抓到而“能跑”
+  抓不到的缺陷。wheel 不是字节级可复现的（构建会写入时间戳等元数据），
+  同一源码重新构建得到的 SHA-256 可能不同，因此哈希是“本次产物”的指纹，
+  而非源码的指纹。
+\end{trapbox}
+
+% ================= 第二部分：版本控制 =================
+\partbanner{exptwo}{二}{课后练习：missing-semester《版本控制》}
+
+\hwbanner{exptwo}{版本控制 · 3}{从历史中彻底删除一个误提交的文件}
+\begin{reqbox}{exptwo}
+  把一个文件加入仓库、做若干次提交，然后把它从\emph{历史}中删除
+  （不只是最新提交），可参考 GitHub 的移除敏感数据说明。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{homework/version-control/3.sh}）}
+\begin{lstlisting}[style=shell]
+repo=$(mktemp -d); cd "$repo"
+git init -q
+git config user.name demo; git config user.email demo@example.com
+printf 'password=hunter2\n' > credentials.txt
+printf 'public\n' > public.txt
+git add . && git commit -qm "add public.txt and credentials.txt"
+
+git filter-repo --path credentials.txt --invert-paths --force
+! git log --all --oneline -- credentials.txt | grep -q .   # 历史中已不存在
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ sh 3.sh
+Parsed 1 commits
+New history written in 0.01 seconds; now repacking/cleaning...
+Repacking your repo and cleaning out old unneeded objects
+Completely finished after 0.02 seconds.
+$ echo $?
+0
+\end{lstlisting}
+\texttt{git filter-repo --invert-paths} 重写所有含该文件的提交，重写后
+\texttt{git log --all -- credentials.txt} 无输出。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  单纯 \texttt{git rm} + 提交只删掉最新快照，历史里的旧版本仍可被检出；
+  \texttt{filter-repo} 会重写提交（哈希全变）。若历史已推送，需
+  \texttt{force push} 并通知协作者重新克隆——这也说明敏感信息一旦进过
+  仓库就应尽快轮换密钥，而不能只依赖删历史。
+\end{trapbox}
+
+\hwbanner{exptwo}{版本控制 · 4}{git stash 的暂存与恢复}
+\begin{reqbox}{exptwo}
+  克隆一个仓库并修改某个文件，观察执行 \texttt{git stash} 后发生什么、
+  \texttt{git log --all --oneline} 显示了什么；再 \texttt{git stash pop} 撤销；
+  思考它适用的场景。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 观察（\texttt{homework/version-control/4.txt}）}
+\begin{lstlisting}[style=output]
+$ git stash
+$ git log --all --oneline
+6a99921 add note.txt
+4e39d44 WIP on master: 6a99921 add note.txt
+ac87543 index on master: 6a99921 add note.txt
+$ git stash pop
+\end{lstlisting}
+\begin{resbox}{exptwo}
+  \texttt{stash} 把未提交改动收起、工作区回到 HEAD；stash 保存在
+  \texttt{refs/stash} 上，所以 \texttt{git log --all} 能看到 \texttt{WIP on}
+  与 \texttt{index on} 两条提交；\texttt{stash pop} 重新应用改动并从栈中删除。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  适用场景：改到一半要临时切分支、拉取远端或修别处 bug，先 stash 保持工作区
+  干净，处理完再 pop 回来。它只收未提交改动，不改提交历史。
+\end{trapbox}
+
+\hwbanner{exptwo}{版本控制 · 5}{为 git 添加 graph 别名}
+\begin{reqbox}{exptwo}
+  在 \texttt{\textasciitilde/.gitconfig} 中创建别名 \texttt{git graph}，
+  使其等价于 \texttt{git log --all --graph --decorate --oneline}。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{homework/version-control/5.sh}）}
+\begin{lstlisting}[style=shell]
+git config --global alias.graph 'log --all --graph --decorate --oneline'
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ git graph -6
+* 8385384 (HEAD -> master) feat: 完成 不止于代码 06 题 PR 评审分析
+* 22d5c09 feat: 完成 不止于代码 02 题提交信息对比
+* 328e52c feat: 完成 代码质量 03 题 CI 加 clang-format 门禁
+...
+\end{lstlisting}
+  实际使用中该别名改由 dotfiles 以 XDG 全局配置管理：
+  \texttt{dotfiles/etc/.config/git/config}（提交 \texttt{ca82d3a}，部署到
+  \texttt{\textasciitilde/.config/git/config}），\texttt{\textasciitilde/.gitconfig}
+  不再单独保留该行，便于随 dotfiles 一起版本化与迁移。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{git config --global} 写的是 \texttt{\textasciitilde/.gitconfig}；
+  Git 同时把 \texttt{\textasciitilde/.config/git/config} 当作全局配置读取，
+  后者更适合交给 dotfiles 管理。\texttt{--all --graph --decorate --oneline}
+  一行即可看清所有引用的分支/合并拓扑。
+\end{trapbox}
+
+\hwbanner{exptwo}{版本控制 · 6}{配置全局 gitignore}
+\begin{reqbox}{exptwo}
+  运行 \texttt{git config --global core.excludesfile \textasciitilde/.gitignore\_global}
+  指定全局忽略文件的位置（文件仍需手动创建），写入忽略 OS/编辑器临时文件
+  （如 \texttt{.DS\_Store}）的规则。
+\end{reqbox}
+\sublabel{exptwo}{\faCode\ 解答（\texttt{homework/version-control/6.sh}）}
+\begin{lstlisting}[style=shell]
+git config --global core.excludesfile "$HOME/.gitignore_global"
+
+cat > "$HOME/.gitignore_global" <<'EOF'
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+*.swp
+*.swo
+EOF
+\end{lstlisting}
+\begin{resbox}{exptwo}
+\begin{lstlisting}[style=output]
+$ git config --global --get core.excludesfile
+/home/pjh123/.gitignore_global
+$ git status --short --ignored
+!! .DS_Store
+!! desktop.ini
+\end{lstlisting}
+  \texttt{.DS\_Store}、\texttt{desktop.ini} 不再出现在普通 \texttt{git status} 中，
+  \texttt{--ignored} 时才显式列出。本机验证后已回退（\texttt{core.excludesfile}
+  清空、\texttt{\textasciitilde/.gitignore\_global} 删除），因为该需求不必要。
+\end{resbox}
+\begin{trapbox}{exptwo}
+  \texttt{core.excludesfile} 是用户级忽略文件，优先级最低（低于仓库
+  \texttt{.gitignore} 与 \texttt{.git/info/exclude}），且只影响未跟踪文件，
+  不会让已跟踪文件消失。
+\end{trapbox}
+
+% ================= 第三部分：代码质量 =================
+\partbanner{expthree}{三}{课后练习：missing-semester《代码质量》}
+
+\hwbanner{expthree}{代码质量 · 3}{为项目接入 CI 格式门禁}
+\begin{reqbox}{expthree}
+  为一个正在进行的项目设置持续集成，让它在每次 push 时运行格式化、lint 与测试；
+  故意把代码弄坏（如引入一条 lint 违规），确认 CI 能抓到。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 新增 format job（pjh\_platform \texttt{.github/workflows/ci.yml}）}
+\begin{lstlisting}[style=shell]
+  format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+      - run: pipx install clang-format==22.1.8
+      - run: clang-format --dry-run --Werror $(git ls-files '*.cpp' '*.hpp' '*.h')
+\end{lstlisting}
+\sublabel{expthree}{\faCode\ 本地复现（等价于 CI 的 Check formatting）}
+\begin{lstlisting}[style=shell]
+$ files=$(git ls-files '*.cpp' '*.hpp' '*.h')
+$ clang-format --dry-run --Werror $files      # 干净树：无输出，exit 0
+$ printf '\nint     broken   =1;\n' >> src/clock.cpp
+$ clang-format --dry-run --Werror src/clock.cpp
+src/clock.cpp:107:4: error: code should be clang-formatted [-Wclang-format-violations]
+exit=1
+\end{lstlisting}
+\begin{resbox}{expthree}
+  \begin{itemize}[leftmargin=1.4em, itemsep=1pt]
+    \item \textbf{干净分支}：master run \texttt{34814274650} 全绿（format job 6s + 6 档 build/test）；
+    \item \textbf{故意弄坏}：分支 \texttt{format-violation-demo} run \texttt{34814518490}
+          中 \texttt{clang-format} 的 \emph{Check formatting} 步骤 6s 内退出 1，
+          而其余 6 个 build/test 矩阵全过——格式门禁能独立拦下违规。
+  \end{itemize}
+  \begin{center}
+  \url{https://github.com/pjh456/pjh_platform/actions/runs/34814518490}
+  \end{center}
+  附带发现：原 \texttt{push.branches: ["*"]} 中的 \texttt{*} 不匹配含
+  \texttt{/} 的分支（如 \texttt{fix/xxx} 不会触发 CI），应改为 \texttt{"**"}。
+\end{resbox}
+\begin{trapbox}{expthree}
+  接入前先用 \texttt{clang-format -i} 把唯一不合规的
+  \texttt{tests/test\_encoding.cpp} 规整，保证门禁基线全绿；CI 用
+  \texttt{pipx} 固定 \texttt{clang-format==22.1.8} 与本地版本一致，避免
+  版本差异造成误报。题目要求的 format/lint/test 中，
+  build+test 已由原矩阵覆盖，本次补上 format。
+\end{trapbox}
+
+\hwbanner{expthree}{代码质量 · 4}{用正则查找危险的 shell=True 调用}
+\begin{reqbox}{expthree}
+  写一个正则并用 \texttt{grep} 在代码中查找
+  \texttt{subprocess.Popen(..., shell=True)}，再试着“破坏”这个正则；
+  对比 \texttt{semgrep} 是否仍能匹配到那些让 grep 失效的危险代码。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 正则（\texttt{homework/code-quality/4.sh}）}
+\begin{lstlisting}[style=shell]
+grep -rnP 'subprocess\.Popen\([^)]*shell\s*=\s*True' .
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ sh 4.sh
+./popen_samples.py:3:  subprocess.Popen(cmd, shell=True)
+./popen_samples.py:8:  subprocess.Popen(cmd, shell = True)
+./popen_samples.py:9:  subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+./popen_samples.py:12: # 注释里的 ...（误报）
+./popen_samples.py:13: text = "..."（误报）
+\end{lstlisting}
+  grep 漏掉跨行的第 4--7 行调用，并误报注释与字符串；semgrep
+  \texttt{-e 'subprocess.Popen(..., shell=True, ...)'} 得到 4 个 finding，
+  正确包含跨行那条、且不命中注释与字符串。
+\end{resbox}
+\begin{trapbox}{expthree}
+  \texttt{[\^{})]*} 不匹配换行，所以跨行调用必漏；参数再嵌套括号时还会提前
+  结束。语义检测（AST 级）的 semgrep 不受换行/空格影响，也不会把注释、
+  字符串当代码，更适合这类危险调用扫描。
+\end{trapbox}
+
+\hwbanner{expthree}{代码质量 · 5}{用编辑器正则替换 Markdown 列表符}
+\begin{reqbox}{expthree}
+  在 IDE/编辑器中用正则查找替换，把讲义中的 \texttt{-} Markdown 项目符号
+  替换为 \texttt{*}；注意不能直接替换文件里所有 \texttt{-}。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 正则（\texttt{homework/code-quality/5.txt}）}
+\begin{lstlisting}[style=shell]
+Vim:      :%s/\v^(\s*)- /\1* /g
+VS Code:  查找 ^(\s*)-    替换 $1* 
+sed -E:   sed -E 's/^([[:space:]]*)- /\1* /'
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+$ rg -c '^- ' code-quality.md
+28
+$ sed -E 's/^([[:space:]]*)- /\1* /' code-quality.md | diff - code-quality.md | grep -c '^>'
+28
+- [Formatting](#formatting)   ->   * [Formatting](#formatting)
+- [Linting](#linting)         ->   * [Linting](#linting)
+\end{lstlisting}
+  28 个行首项目符号全部替换；链接锚点（\texttt{\#continuous-integration}）、
+  代码中的 \texttt{-} 等不受影响。
+\end{resbox}
+\begin{trapbox}{expthree}
+  关键是锚定行首并回填缩进：\texttt{\^{}(\textbackslash s*)- } 只匹配
+  “行首（可含空白）+ \texttt{-} + 一个空格”，因此不会动锚点、\texttt{--flag}、
+  \texttt{a-b} 等行内 \texttt{-}。
+\end{trapbox}
+
+\hwbanner{expthree}{代码质量 · 6}{用正则捕获 JSON 中的 name}
+\begin{reqbox}{expthree}
+  写正则从 \texttt{\{"name": "Alyssa P. Hacker", "college": "MIT"\}} 中捕获
+  name；处理 name 含转义 \texttt{\textbackslash"} 的情形；再用 JSON 解析器写一个
+  从 stdin 读、向 stdout 输出 name 的命令行程序。
+\end{reqbox}
+\sublabel{expthree}{\faCode\ 正则与结果（\texttt{homework/code-quality/6.txt}、\texttt{6.py}）}
+\begin{lstlisting}[style=shell]
+"name"\s*:\s*"(.+)"                  # 贪婪，多吞后面字段
+"name"\s*:\s*"([^"]*)"               # 排除引号，正确
+"name"\s*:\s*"((?:[^"\\]|\\.)*)"     # 再跳过被转义的引号
+\end{lstlisting}
+\begin{resbox}{expthree}
+\begin{lstlisting}[style=output]
+greedy    : Alyssa P. Hacker", "college": "MIT
+non-greedy: Alyssa P. Hacker
+escaped   : Alyssa \"P.\" Hacker
+$ echo '{"name": "Alyssa P. Hacker", "college": "MIT"}' | python3 6.py
+Alyssa P. Hacker
+\end{lstlisting}
+\end{resbox}
+\begin{trapbox}{expthree}
+  \texttt{.} 默认不匹配换行、\texttt{.+} 贪婪会吃到行尾最后一个引号；
+  \texttt{[\^{}"]*} 用“排除引号”替代懒惰匹配更直观；实践中解析 JSON 应用
+  \texttt{json} 解析器，正则只适合极简、格式受控的抽取。
+\end{trapbox}
+
+% ================= 第四部分：不止于代码 =================
+\partbanner{expfour}{四}{课后练习：missing-semester《不止于代码》}
+
+\hwbanner{expfour}{不止于代码 · 2}{好提交信息与弱提交信息的差距}
+\begin{reqbox}{expfour}
+  查看一个项目的提交历史，找到一条能解释“为什么要改”的好提交信息，再找一条
+  只描述“改了什么”的弱提交信息；对后者查看 diff，尝试按
+  “问题 $\to$ 方案 $\to$ 影响”结构写一条更好的提交信息，体会事后补全
+  背景信息的成本。
+\end{reqbox}
+\sublabel{expfour}{\faCode\ 好例子（LMCache-Ascend，我贡献的 PR \#289 / \#288）}
+\begin{lstlisting}[style=output]
+3091f21 fix(c_ops): add missing <stdexcept> include in mem_alloc.cpp
+        std::runtime_error is used but <stdexcept> was only pulled in
+        transitively; GCC 13.3 / newer libstdc++ no longer provides it, so
+        compilation fails with 'runtime_error' is not a member of 'std'.
+
+fe407e0 fix(hixl): add pkg_inc include path for CANN 9.x
+        rt_external_device.h 迁移到 aarch64-linux/pkg_inc/runtime；新增
+        -I 在旧 CANN（8.5）上无害。
+\end{lstlisting}
+\sublabel{expfour}{\faCode\ 弱例子（NovaShen555/WeatherViewer，历史提交）}
+\begin{lstlisting}[style=output]
+241eebfa 补一下                 正文：忘记传templates了好像
+7b9ee325 修了一下extends继承     正文：把tmp模板修好了
+\end{lstlisting}
+\sublabel{expfour}{\faCode\ 重写 \texttt{241eebfa}（依据 diff：补传 11 个模板、6000+ 行）}
+\begin{lstlisting}[style=output]
+fix(templates): 补传遗漏的页面模板，恢复页面渲染
+
+问题：上一次提交只更新了视图，漏提交 templates/ 下页面模板，部署后
+对应页面会因找不到模板而无法渲染。
+方案：补传 bulletin.html、home.html、toolmap.html 等 11 个模板，并同步
+更新 view_weather.html 等引用。
+影响：页面恢复渲染；本次变更含大段重排，需回归验证首页、气象公报、
+天气地图三类页面的渲染与静态资源路径。
+\end{lstlisting}
+\begin{resbox}{expfour}
+  好信息把“为什么”写进正文（传递 include 的脆弱、旧版本兼容性）；弱信息
+  只有“当时的操作”（补一下/修一下），几个月后除 diff 外无法还原动机与范围。
+\end{resbox}
+\begin{trapbox}{expfour}
+  按“问题 $\to$ 方案 $\to$ 影响”重写时，最费劲的正是补全“为什么”——这恰好
+  说明提交信息应该在改动当下写，而不是事后来考古。
+\end{trapbox}
+
+\hwbanner{expfour}{不止于代码 · 6}{读懂一次真实 PR 评审}
+\begin{reqbox}{expfour}
+  找一个已合并、且包含实质性评审意见（不只是 LGTM）的 PR，通读整个评审：
+  所有评论是否同样高效？如果你是作者，收到这些评论体验如何？
+\end{reqbox}
+\sublabel{expfour}{\faCode\ 评审线程（LMCache-Ascend \#289）}
+\begin{lstlisting}[style=output]
+1. chloroethylene: "LGTM — confirmed the bug is real 👍"
+   逐层验证根因（9 处 std::runtime_error 无 <stdexcept>；GCC 13 从
+   bits/std_mutex.h 移除 <system_error>），并建议 pybind.cpp 同类问题
+   可顺带修或另开 PR，明确 "either way this one is ready to merge"。
+2. pjh456: 已在 73c3da7 一并修复 pybind.cpp / exception.h 等 4 个文件。
+3. chloroethylene: "fix lint plz"
+4. pjh456: 1736ffc 修好 clang-format include 排序，CI 应能通过。
+5. matthewygf: APPROVED，"LGTM ! Thanks for the contribution."
+\end{lstlisting}
+\begin{resbox}{expfour}
+  评论 1 高质量：验证根因、给出可操作建议、并区分“建议/阻断”，作者无需
+  来回确认。评论 3 是必要阻断项但信息量低（未指出是 clang-format、哪个
+  文件、哪条规则），作者需自行翻 CI 日志。作为作者整体体验正面：
+  “验证 + 可操作 + 分级”的反馈让作者知道该做什么。
+\end{resbox}
+\begin{trapbox}{expfour}
+  更高效的阻断意见应带上下文，例如：“clang-format 未通过：pybind.cpp 的
+  \texttt{<stdexcept>} 需按字母序排在 \texttt{<pybind11/stl.h>} 之后”。
+  评审的价值在于让作者少猜。
+\end{trapbox}
+
+% ================= 总结 =================
+\partbanner{expone}{五}{总结与收获}
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{课堂实验（q13--q16）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item 质量门禁 = \texttt{ruff format --check} + \texttt{ruff check} + \texttt{pytest}，
+          用 \texttt{check.sh} 串起并保证退出码；
+    \item Make 的依赖必须写全，\texttt{all}/\texttt{clean} 声明
+          \texttt{.PHONY}，才能真正“只重建受影响的产物”；
+    \item \texttt{curl -fsS} + \texttt{jq select/sort\_by} 能把本地 HTTP 数据
+          转成 Markdown 报告；
+    \item wheel 的 SHA-256 是本次产物的指纹，构建非字节可复现，重建哈希会变。
+  \end{itemize}
+  \item \textbf{课后练习（missing-semester 三讲）}
+  \begin{itemize}[leftmargin=1.6em, itemsep=1pt]
+    \item 版本控制：\texttt{git filter-repo --invert-paths} 重写历史；
+          \texttt{stash} 存在 \texttt{refs/stash}；别名与全局 gitignore 都可通过
+          全局配置（尤其 XDG \texttt{\textasciitilde/.config/git/config}）纳入 dotfiles 管理；
+    \item 代码质量：CI 用 \texttt{clang-format --dry-run --Werror} 做格式门禁并
+          故意弄坏验证；grep 正则在跨行/嵌套/注释上失效，semgrep 的 AST 匹配更可靠；
+          编辑器正则替换要锚定行首并回填缩进；
+    \item 不止于代码：提交信息要写“为什么”，按“问题 $\to$ 方案 $\to$ 影响”组织；
+          好的评审 = 验证 + 可操作 + 分级（阻断/建议）。
+  \end{itemize}
+\end{itemize}
+
+\end{document}
